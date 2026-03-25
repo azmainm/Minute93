@@ -38,6 +38,27 @@ class EnvironmentVariables {
   JWT_EXPIRATION: string = '7d';
 
   @IsString()
+  GOOGLE_CLIENT_ID: string;
+
+  @IsString()
+  GOOGLE_CLIENT_SECRET: string;
+
+  @IsString()
+  GOOGLE_CALLBACK_URL: string;
+
+  @IsString()
+  @IsOptional()
+  API_FOOTBALL_KEY: string;
+
+  @IsString()
+  @IsOptional()
+  API_FOOTBALL_BASE_URL: string = 'https://v3.football.api-sports.io';
+
+  @IsString()
+  @IsOptional()
+  ACTIVE_LEAGUES: string = '39,140,2';
+
+  @IsString()
   REDIS_URL: string;
 
   @IsString()
