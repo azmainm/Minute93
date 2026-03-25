@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LogIn, Mail, Lock, Chrome } from "lucide-react";
+import { LogIn, Mail, Lock, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,7 +57,7 @@ export default function LoginPage() {
           {/* Google OAuth */}
           <a href={`${API_BASE}/auth/google`}>
             <Button variant="outline" className="w-full gap-2" type="button">
-              <Chrome className="size-4" />
+              <Globe className="size-4" />
               Continue with Google
             </Button>
           </a>

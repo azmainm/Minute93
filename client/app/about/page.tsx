@@ -2,8 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
-  Github,
-  ExternalLink,
+  GitFork,
   Zap,
   Database,
   Radio,
@@ -198,7 +197,7 @@ export default function AboutPage() {
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <a href="https://github.com/azmainm/Minute93" target="_blank" rel="noopener noreferrer">
               <Button size="lg" className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-                <Github className="size-4" />
+                <GitFork className="size-4" />
                 View on GitHub
               </Button>
             </a>

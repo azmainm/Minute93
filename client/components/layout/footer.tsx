@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Github, ExternalLink } from "lucide-react";
+import { ExternalLink, GitFork } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const footerLinks = [
@@ -76,7 +76,7 @@ export function Footer() {
               className="text-muted-foreground transition-colors hover:text-primary"
               aria-label="GitHub"
             >
-              <Github className="size-4" />
+              <GitFork className="size-4" />
             </a>
             <a
               href="https://minute93.com"
