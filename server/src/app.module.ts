@@ -6,6 +6,11 @@ import { getDatabaseConfig } from './config/database.config.js';
 import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware.js';
 import { AppController } from './app.controller.js';
 import { AuthModule } from './auth/auth.module.js';
+import { MatchModule } from './match/match.module.js';
+import { TeamModule } from './team/team.module.js';
+import { PlayerModule } from './player/player.module.js';
+import { SearchModule } from './search/search.module.js';
+import { LeagueModule } from './league/league.module.js';
 
 @Module({
   imports: [
@@ -19,6 +24,11 @@ import { AuthModule } from './auth/auth.module.js';
       useFactory: getDatabaseConfig,
     }),
     AuthModule,
+    MatchModule,
+    TeamModule,
+    PlayerModule,
+    SearchModule,
+    LeagueModule,
   ],
   controllers: [AppController],
 })
