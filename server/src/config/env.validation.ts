@@ -38,6 +38,28 @@ class EnvironmentVariables {
   JWT_EXPIRATION: string = '7d';
 
   @IsString()
+  REDIS_URL: string;
+
+  @IsString()
+  KAFKA_BROKERS: string;
+
+  @IsString()
+  @IsOptional()
+  KAFKA_TOPIC: string = 'match.events';
+
+  @IsString()
+  @IsOptional()
+  KAFKA_SSL: string;
+
+  @IsString()
+  @IsOptional()
+  KAFKA_SASL_USERNAME: string;
+
+  @IsString()
+  @IsOptional()
+  KAFKA_SASL_PASSWORD: string;
+
+  @IsString()
   @IsOptional()
   CLIENT_URL: string = 'http://localhost:3001';
 }

@@ -11,6 +11,8 @@ import { TeamModule } from './team/team.module.js';
 import { PlayerModule } from './player/player.module.js';
 import { SearchModule } from './search/search.module.js';
 import { LeagueModule } from './league/league.module.js';
+import { RedisModule } from './redis/redis.module.js';
+import { KafkaModule } from './kafka/kafka.module.js';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { LeagueModule } from './league/league.module.js';
       inject: [ConfigService],
       useFactory: getDatabaseConfig,
     }),
+    RedisModule,
+    KafkaModule,
     AuthModule,
     MatchModule,
     TeamModule,
