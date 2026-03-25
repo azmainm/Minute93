@@ -1,19 +1,44 @@
 # External Services Setup Guide
 
-Step-by-step instructions for setting up every external service Minute93 depends on. Follow each section in order.
+Step-by-step instructions for setting up every external service Minute93 depends on.
 
 > **What you need right now vs later:**
-> - **Now (Phase 1):** PostgreSQL (already running via Docker)
+> - **Now (Phase 1):** PostgreSQL + Redis + Redpanda all run via `docker compose up -d`
 > - **Phase 1, Step 3:** API-Football (for seeding data)
 > - **Phase 1, Step 2:** Google OAuth (for auth module)
-> - **Phase 2:** Upstash Kafka + Redis
 > - **Phase 4:** Grafana Cloud
-
-You can set them all up now or come back to each section when needed.
 
 ---
 
-## 1. API-Football
+## 1. Local Development Infrastructure
+
+Everything runs in Docker. One command:
+
+```bash
+docker compose up -d
+```
+
+This starts:
+- **PostgreSQL 16** on port 5432 (user: `postgres`, password: `dev`, db: `minute93`)
+- **Redis 7** on port 6379 (no password)
+- **Redpanda** (Kafka API) on port 19092
+
+To create the Kafka topic (first time only):
+```bash
+docker exec minute93-redpanda rpk topic create match.events --partitions 8
+```
+
+To run the database schema (first time only):
+```bash
+docker exec -i minute93-postgres psql -U postgres -d minute93 < server/database/schema.sql
+```
+
+To stop everything: `docker compose down`
+To reset everything: `docker compose down -v` (deletes all data)
+
+---
+
+## 2. API-Football
 
 API-Football is our data source for live scores, fixtures, teams, and players.
 
@@ -21,25 +46,14 @@ API-Football is our data source for live scores, fixtures, teams, and players.
 
 1. Go to [api-football.com](https://www.api-football.com/) — **NOT** RapidAPI (direct is cheaper)
 2. Click **Get started** or **Pricing**
-3. Sign up for the **Free** plan (100 requests/day) — this is enough for building and seeding data
+3. Sign up for the **Free** plan (100 requests/day) — enough for building and seeding
 4. After signup, go to your **Dashboard** → you'll see your API key on the main page
 
 ### Test your key
 
-Open a terminal and run:
-
 ```bash
 curl -s -H "x-apisports-key: YOUR_KEY" \
   "https://v3.football.api-sports.io/status" | json_pp
-```
-
-You should see your account details, remaining requests, etc.
-
-Try fetching Champions League teams:
-
-```bash
-curl -s -H "x-apisports-key: YOUR_KEY" \
-  "https://v3.football.api-sports.io/teams?league=2&season=2025" | json_pp
 ```
 
 ### Update your .env
@@ -59,7 +73,7 @@ API_FOOTBALL_BASE_URL=https://v3.football.api-sports.io
 
 ---
 
-## 2. Google Cloud OAuth
+## 3. Google Cloud OAuth
 
 Google OAuth lets users sign in with their Google account.
 
@@ -79,10 +93,7 @@ Google OAuth lets users sign in with their Google account.
    - **User support email:** your email
    - **App type**: External
 4. Under **Audience** select **External** → **Create**
-5. Under **Data Access/Scopes**, add:
-   - `email`
-   - `profile`
-   - `openid`
+5. Under **Data Access/Scopes**, add: `email`, `profile`, `openid`
 6. Under **Authorized domains**, add: `minute93.com`
 7. Save
 
@@ -110,113 +121,23 @@ GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
 
 ---
 
-## 3. Upstash Redis
+## 4. Grafana Cloud
 
-Redis is used for caching, rate limiting, pub/sub (SSE), and event deduplication.
-
-### Create a Redis database
-
-1. Go to [console.upstash.com](https://console.upstash.com/) → sign up (GitHub or email)
-2. Click **Redis** in the sidebar → **Create Database**
-3. Fill in:
-   - **Name:** `minute93-redis`
-   - **Type:** Regional
-   - **Region:** Pick the closest to your Render deployment region (US-East-1 is a safe default)
-   - **Eviction:** Enable (uses LRU eviction when memory is full — fine for cache)
-4. Click **Create**
-
-### Get your credentials
-
-On the database details page, you'll see several connection options:
-
-- **Redis URL** (starts with `rediss://`) — this is what NestJS uses via ioredis
-- **REST URL** and **REST Token** — alternative HTTP-based access
-
-Copy all three.
-
-### Update your .env
-
-```env
-REDIS_URL=rediss://default:your-password@your-instance.upstash.io:6379
-UPSTASH_REDIS_REST_URL=https://your-instance.upstash.io
-UPSTASH_REDIS_REST_TOKEN=your-rest-token
-```
-
-> **Note:** Upstash Redis URLs start with `rediss://` (double s) for TLS. This is correct.
-
----
-
-## 4. Upstash Kafka
-
-Kafka is our event backbone — the poller produces match events, and four NestJS consumers process them.
-
-### Create a Kafka cluster
-
-1. In the same [Upstash console](https://console.upstash.com/), click **Kafka** in the sidebar
-2. Click **Create Cluster**
-3. Fill in:
-   - **Name:** `minute93-kafka`
-   - **Region:** Same region as your Redis instance
-   - **Type:** Single replica (cheapest, fine for this scale)
-4. Click **Create**
-
-### Create the topic
-
-1. Once the cluster is created, click on it
-2. Go to the **Topics** tab → **Create Topic**
-3. Fill in:
-   - **Name:** `match.events`
-   - **Partitions:** `8` (enables parallel consumption, partitioned by match_id)
-   - **Retention time:** `86400000` (24 hours in ms — we persist to Postgres, so short retention is fine)
-   - **Retention size:** Default is fine
-   - **Max message size:** Default (1 MB) is fine
-4. Click **Create**
-
-### Get your credentials
-
-Go to the cluster **Details** tab. You'll see:
-
-- **REST URL** (starts with `https://`)
-- **REST Username**
-- **REST Password**
-
-### Update your .env
-
-```env
-UPSTASH_KAFKA_REST_URL=https://your-kafka-instance.upstash.io
-UPSTASH_KAFKA_REST_USERNAME=your-kafka-username
-UPSTASH_KAFKA_REST_PASSWORD=your-kafka-password
-KAFKA_TOPIC=match.events
-```
-
----
-
-## 5. Grafana Cloud
-
-Grafana gives us observability dashboards, alerting, and automated PDF reports. **This is not needed until Phase 4** — set it up then, or now if you want to get it out of the way.
+Grafana gives us observability dashboards, alerting, and automated PDF reports. **Not needed until Phase 4.**
 
 ### Sign up
 
 1. Go to [grafana.com](https://grafana.com/) → **Create free account**
-2. The free tier includes:
-   - 10,000 metric series
-   - 50 GB logs
-   - 50 GB traces
-   - 14-day metric retention
-   - Automated PDF reports (preserves dashboard state beyond retention)
+2. Free tier: 10K metric series, 50 GB logs, 50 GB traces, 14-day retention
 
-### What you'll get
+### What you'll configure (Phase 4)
 
-After signup, you'll have a Grafana Cloud instance at a URL like `https://yourname.grafana.net`. You'll configure it during Phase 4 to:
+1. Scrape metrics from NestJS via `/metrics` Prometheus endpoint
+2. Build dashboards for live operations, traffic, and performance
+3. Set up alerting → webhook to `POST /admin/incidents`
+4. Schedule daily PDF reports (preserves dashboard state beyond 14-day retention)
 
-1. **Scrape metrics** from NestJS via a `/metrics` Prometheus endpoint
-2. **Build dashboards** for live operations, traffic, and performance
-3. **Set up alerting** — when metrics cross thresholds, Grafana sends a webhook to `POST /admin/incidents`
-4. **Schedule daily PDF reports** — emailed at midnight, preserving dashboard snapshots beyond the 14-day retention
-
-### What to note down
-
-From your Grafana Cloud instance, you'll eventually need:
+### Env vars (Phase 4)
 
 ```env
 PROMETHEUS_REMOTE_WRITE_URL=https://prometheus-prod.grafana.net/api/prom/push
@@ -224,23 +145,19 @@ GRAFANA_API_KEY=your-grafana-api-key
 GRAFANA_CLOUD_URL=https://yourname.grafana.net
 ```
 
-Don't worry about these until Phase 4. They're commented out in `server/.env.example`.
-
 ---
 
 ## Quick Reference: All Environment Variables
 
-Once you've set up everything, your `server/.env` should have all these filled in. See `server/.env.example` for the full template with comments.
-
 | Variable | Source | Needed by |
 |----------|--------|-----------|
-| `DATABASE_*` | Your Docker Postgres | Phase 1 (now) |
+| `DATABASE_*` | Docker Postgres (automatic via docker-compose) | Phase 1 (now) |
 | `JWT_SECRET` | Generate a random string | Phase 1 |
 | `GOOGLE_CLIENT_ID` | Google Cloud Console | Phase 1 |
 | `GOOGLE_CLIENT_SECRET` | Google Cloud Console | Phase 1 |
 | `API_FOOTBALL_KEY` | api-football.com dashboard | Phase 1 |
-| `REDIS_URL` | Upstash Redis details page | Phase 2 |
-| `UPSTASH_KAFKA_*` | Upstash Kafka details page | Phase 2 |
+| `REDIS_URL` | Docker Redis (automatic via docker-compose) | Phase 2 (now local) |
+| `KAFKA_BROKERS` | Docker Redpanda (automatic via docker-compose) | Phase 2 (now local) |
 | `GRAFANA_*` | Grafana Cloud instance | Phase 4 |
 
-Your `client/.env.local` only needs API URLs — see `client/.env.example`.
+For production env vars, see `.claude/docs/production-setup.md`.

@@ -17,7 +17,7 @@ A single Kafka topic (`match.events`, partitioned by `match_id`) feeds four inde
 - Consumers must be **idempotent** — the same event processed twice must produce the same result.
 - Partition by `match_id` guarantees **event ordering per match**.
 - Each consumer operates independently; one consumer's failure must not block others.
-- Use Upstash Kafka's REST-based producer/consumer API (not native Kafka protocol).
+- Uses kafkajs client library. Local dev connects to Redpanda via plain TCP; production connects to Redpanda Cloud with SASL/SSL (configured via env vars).
 
 ## 2. Redis Multi-Pattern Usage
 

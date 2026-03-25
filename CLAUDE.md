@@ -12,9 +12,9 @@ Real-time football intelligence platform — live scores, historical stats, leag
 | Frontend | Next.js 16 (App Router), shadcn/ui, Tailwind | Vercel |
 | Backend API | NestJS 11 (TypeScript), behind Nginx reverse proxy | Render (Docker) |
 | Poller Worker | Node.js background worker | Render (Background Worker) |
-| Event Backbone | Kafka (Upstash) | Managed |
-| Cache / Pub/Sub | Redis (Upstash) — 4 patterns: cache-aside, rate limiting, pub/sub, dedup | Managed |
-| Database | PostgreSQL 16 (local Docker dev, Render prod) | Render |
+| Event Backbone | Kafka via Redpanda (local Docker / Redpanda Cloud prod) | Redpanda Cloud |
+| Cache / Pub/Sub | Redis — 4 patterns: cache-aside, rate limiting, pub/sub, dedup | Docker local / Render Key Value prod |
+| Database | PostgreSQL 16 | Docker local / Render Postgres prod |
 | Data Source | API-Football (api-football.com, NOT RapidAPI) | External API |
 | Monitoring | Grafana Cloud + Prometheus metrics | Managed |
 | Load Testing | k6 | Local/CI |
@@ -77,7 +77,25 @@ Check these files when working on specific areas:
 - `.claude/docs/code-organization.md` — NestJS module structure, file naming, separation of concerns
 - `.claude/docs/database-patterns.md` — Schema conventions, materialized views, migrations, indexing
 - `.claude/docs/testing-strategy.md` — k6 load testing approach, scenarios, thresholds
+- `.claude/docs/production-setup.md` — Render Postgres, Render Redis, Redpanda Cloud deployment instructions
 - `.claude/docs/ai-development-log.md` — Session log for AI-assisted development (update at start and end of every session)
+
+## Local Development
+
+```bash
+docker compose up -d    # Start Postgres + Redis + Redpanda
+cd server && npm run start:dev
+cd client && npm run dev
+```
+
+All infrastructure runs in Docker locally. No external services needed for development (except API-Football for seeding data).
+
+## Production Deployment
+
+When deploying or configuring env vars on Render, refer to `.claude/docs/production-setup.md` for complete instructions. Production uses:
+- **Render Postgres** (internal networking)
+- **Render Key Value / Redis** (internal networking)
+- **Redpanda Cloud** (only external third-party service, SASL/SSL)
 
 ## Update Discipline
 
