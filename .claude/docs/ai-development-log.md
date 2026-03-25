@@ -73,3 +73,50 @@ Living document tracking how AI coding tools (Claude Code) are used in building 
 - Claude Code (CLI) with checklist-style execution prompt
 - Multiple commits on main branch for each logical unit of work
 - Backend-only session — frontend deferred pending UI discussion with user
+
+---
+
+## Session 3 — 2026-03-25/26
+
+**Prompt technique:** User-guided creative brief + autonomous execution
+
+**Objectives:**
+- Build the complete Next.js 16 frontend for Minute93
+- Follow user's design brief: minimalistic, clean, athletic feel, Rose primary + zinc neutrals
+- Responsive design (mobile hamburger menu, desktop navbar)
+- Use shadcn/ui components throughout (sonner, accordion, card, skeleton, tabs, etc.)
+- Create all pages: home, matches (tabbed), match detail, teams, team detail, player detail, standings, top scorers, search, about, login/signup
+
+**Outcomes:**
+- Installed 23 shadcn/ui components + sonner + next-themes
+- Created Rose-primary color theme with zinc neutrals in globals.css (light mode only for now)
+- Built responsive navbar with Sheet-based hamburger menu on mobile
+- Built footer with navigation links and branding
+- Created API client (lib/api.ts) with typed fetch wrapper matching server's ApiResponse shape
+- Created shared components: MatchCard, MatchCardSkeleton, PageHeader, EmptyState, ErrorMessage
+- Built 12 routes: /, /matches, /matches/[id], /teams, /teams/[id], /players/[id], /standings, /top-scorers, /search, /about, /login, /signup
+- Home page: hero with gradient, features grid, architecture highlight, CTA
+- Matches: tabbed Live/Results/Schedule with loading states
+- Match detail: score header, event timeline, lineups tabs
+- Teams: grid listing, detail with squad by position + recent/upcoming
+- Player: profile header, stats grid, recent matches
+- Standings: full league table with responsive columns
+- Top scorers: ranked list with visual hierarchy
+- Search: debounced fuzzy search with instant results
+- About: Sergio Ramos 93rd-minute story, builder bio, architecture highlights, tech stack
+- Auth: login/signup with Google OAuth + email/password, sonner toasts
+- Fixed lucide-react icon naming (Github → GitFork, Chrome → Globe)
+- All 12 routes build cleanly (mix of static and dynamic)
+
+**Decisions made:**
+- Inter font over Geist (better athletic feel)
+- Sheet component for mobile nav (smooth animation from shadcn)
+- Client components for data-fetching pages (useEffect + useState pattern)
+- Server component for About page (static content, metadata export)
+- 300ms debounce on search for instant-feel results
+- Compact mode on MatchCard for nested usage (team detail, player detail)
+
+**AI tool configuration:**
+- Claude Code (CLI) with user's creative brief as design spec
+- Many small commits on main (10 commits in this session)
+- Next.js 16 docs consulted for params Promise pattern and Server/Client component conventions
