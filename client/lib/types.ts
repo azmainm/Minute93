@@ -161,6 +161,11 @@ export interface SearchResult {
 // ─── Composite types for detail pages ───
 // These match the exact shape returned by the NestJS API
 
+export interface MatchDetail extends Match {
+  events: MatchEvent[];
+  lineups: MatchLineup[];
+}
+
 export interface PlayerDetail {
   player: Player;
   stats: {

@@ -86,15 +86,11 @@ export async function getScheduledMatches(params?: Record<string, string>) {
 }
 
 export async function getMatch(id: number) {
-  return request<import("./types").Match>(`/matches/${id}`);
+  return request<import("./types").MatchDetail>(`/matches/${id}`);
 }
 
 export async function getMatchEvents(id: number) {
   return request<import("./types").MatchEvent[]>(`/matches/${id}/events`);
-}
-
-export async function getMatchLineups(id: number) {
-  return request<import("./types").MatchLineup[]>(`/matches/${id}/lineups`);
 }
 
 // ─── Teams ───

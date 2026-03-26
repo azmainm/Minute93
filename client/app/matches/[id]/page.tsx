@@ -22,9 +22,9 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/shared/error-message";
 import { EmptyState } from "@/components/shared/empty-state";
-import { getMatch, getMatchEvents, getMatchLineups } from "@/lib/api";
+import { getMatch } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import type { Match, MatchEvent, MatchLineup } from "@/lib/types";
+import type { MatchDetail } from "@/lib/types";
 
 function eventIcon(type: string) {
   switch (type) {
@@ -72,9 +72,7 @@ function statusLabel(status: string) {
 
 export default function MatchDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const [match, setMatch] = useState<Match | null>(null);
-  const [events, setEvents] = useState<MatchEvent[]>([]);
-  const [lineups, setLineups] = useState<MatchLineup[]>([]);
+  const [match, setMatch] = useState<MatchDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -83,14 +81,8 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
       setLoading(true);
       setError(null);
       try {
-        const [matchData, eventsData, lineupsData] = await Promise.all([
-          getMatch(Number(id)),
-          getMatchEvents(Number(id)).catch(() => []),
-          getMatchLineups(Number(id)).catch(() => []),
-        ]);
-        setMatch(matchData);
-        setEvents(eventsData);
-        setLineups(lineupsData);
+        const data = await getMatch(Number(id));
+        setMatch(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load match");
       } finally {
@@ -122,6 +114,8 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
   }
 
   const isLive = ["live", "extra_time", "penalties", "halftime"].includes(match.status);
+  const events = match.events || [];
+  const lineups = match.lineups || [];
   const homeLineup = lineups.filter((l) => l.team_id === match.home_team_id);
   const awayLineup = lineups.filter((l) => l.team_id === match.away_team_id);
 
