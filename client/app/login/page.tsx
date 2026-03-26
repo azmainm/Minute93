@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { LogIn, Mail, Lock, Globe } from "lucide-react";
+import { LogIn, Mail, Lock } from "lucide-react";
+import { GoogleIcon } from "@/components/shared/google-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -85,9 +86,9 @@ export default function LoginPage() {
         <CardContent>
           {/* Google OAuth */}
           <a href={`${API_BASE}/auth/google`}>
-            <Button variant="outline" className="w-full gap-2" type="button">
-              <Globe className="size-4" />
-              Continue with Google
+            <Button variant="outline" className="w-full gap-3 border-border/80 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50" type="button">
+              <GoogleIcon className="size-5" />
+              Sign in with Google
             </Button>
           </a>
 
