@@ -15,7 +15,7 @@ import pg from 'pg';
 const API_KEY = process.env.API_FOOTBALL_KEY;
 const API_BASE = process.env.API_FOOTBALL_BASE_URL || 'https://v3.football.api-sports.io';
 const ACTIVE_LEAGUES = (process.env.ACTIVE_LEAGUES || '2').split(',').map(Number);
-const SEASON = Number(process.env.SEED_SEASON || '2025');
+const SEASON = Number(process.env.SEED_SEASON || '2024');
 
 const DATABASE_URL =
   process.env.DATABASE_URL ||
@@ -52,10 +52,13 @@ async function apiFetch<T>(endpoint: string, params: Record<string, string | num
 
   if (json.errors && Object.keys(json.errors).length > 0) {
     console.warn('  API errors:', json.errors);
+    if (json.errors.requests || json.errors.rateLimit) {
+      throw new Error(`API limit reached: ${json.errors.requests || json.errors.rateLimit}`);
+    }
   }
 
-  // Respect rate limits
-  await new Promise((r) => setTimeout(r, 1000));
+  // Respect rate limits: 10 requests/minute on free tier
+  await new Promise((r) => setTimeout(r, 6500));
 
   return json.response;
 }
@@ -121,29 +124,35 @@ async function seedPlayers() {
 
   let totalPlayers = 0;
   for (const team of teams.rows) {
-    const squads = await apiFetch<{
-      players: Array<{
-        id: number;
-        name: string;
-        position: string;
-        number: number | null;
-        photo: string;
-      }>;
-    }>('/players/squads', { team: team.api_football_id });
+    try {
+      const squads = await apiFetch<{
+        players: Array<{
+          id: number;
+          name: string;
+          position: string;
+          number: number | null;
+          photo: string;
+        }>;
+      }>('/players/squads', { team: team.api_football_id });
 
-    if (squads.length === 0) continue;
+      if (squads.length === 0) continue;
 
-    const players = squads[0].players || [];
-    for (const player of players) {
-      await pool.query(
-        `INSERT INTO players (api_football_id, name, team_id, position, number, photo_url)
-         VALUES ($1, $2, $3, $4, $5, $6)
-         ON CONFLICT (api_football_id) DO UPDATE SET name = $2, team_id = $3, position = $4, number = $5, photo_url = $6`,
-        [player.id, player.name, team.id, player.position, player.number, player.photo],
-      );
-      totalPlayers++;
+      const players = squads[0].players || [];
+      for (const player of players) {
+        await pool.query(
+          `INSERT INTO players (api_football_id, name, team_id, position, number, photo_url)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           ON CONFLICT (api_football_id) DO UPDATE SET name = $2, team_id = $3, position = $4, number = $5, photo_url = $6`,
+          [player.id, player.name, team.id, player.position, player.number, player.photo],
+        );
+        totalPlayers++;
+      }
+      console.log(`  ✓ ${players.length} players for team ${team.api_football_id}`);
+    } catch (err) {
+      console.warn(`\n⚠ Stopping player seeding: ${err instanceof Error ? err.message : err}`);
+      console.warn('  Run the script again later to continue seeding remaining teams.');
+      break;
     }
-    console.log(`  ✓ ${players.length} players for team ${team.api_football_id}`);
 
     // Check budget: free tier = 100 req/day
     if (requestCount >= 95) {

@@ -21,7 +21,7 @@ export default function MatchesPage() {
   const [upcoming, setUpcoming] = useState<PaginatedData<Match> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [season, setSeason] = useState("2025");
+  const [season, setSeason] = useState("2024");
 
   const showSeasonSelector = tab === "results";
 

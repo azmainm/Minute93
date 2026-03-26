@@ -26,7 +26,7 @@ export default function StandingsPage() {
   const [standings, setStandings] = useState<StandingsRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [season, setSeason] = useState("2025");
+  const [season, setSeason] = useState("2024");
 
   useEffect(() => {
     async function fetchStandings() {
