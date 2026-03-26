@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   UserCircle,
   Mail,
-  Shield,
   Clock,
   Heart,
   Lock,
@@ -16,12 +16,43 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
-import { updateProfile, changePassword } from "@/lib/api";
+import { updateProfile, changePassword, getTeams } from "@/lib/api";
+import type { Team } from "@/lib/types";
+
+const TIMEZONES = [
+  "Asia/Dhaka",
+  "Asia/Kolkata",
+  "Asia/Dubai",
+  "Asia/Tokyo",
+  "Asia/Shanghai",
+  "Asia/Singapore",
+  "Europe/London",
+  "Europe/Paris",
+  "Europe/Berlin",
+  "Europe/Madrid",
+  "Europe/Istanbul",
+  "America/New_York",
+  "America/Chicago",
+  "America/Denver",
+  "America/Los_Angeles",
+  "America/Toronto",
+  "America/Sao_Paulo",
+  "Australia/Sydney",
+  "Pacific/Auckland",
+  "Africa/Cairo",
+  "Africa/Lagos",
+];
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -31,6 +62,7 @@ export default function ProfilePage() {
   const [favoriteTeam, setFavoriteTeam] = useState("");
   const [timezone, setTimezone] = useState("");
   const [saving, setSaving] = useState(false);
+  const [teams, setTeams] = useState<Team[]>([]);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -49,6 +81,18 @@ export default function ProfilePage() {
       setTimezone((user as unknown as { timezone?: string }).timezone || "");
     }
   }, [user]);
+
+  useEffect(() => {
+    async function fetchTeams() {
+      try {
+        const data = await getTeams();
+        setTeams(data);
+      } catch {
+        // Teams list is optional for profile
+      }
+    }
+    fetchTeams();
+  }, []);
 
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();
@@ -120,13 +164,6 @@ export default function ProfilePage() {
             <span className="ml-auto font-medium">{user.email}</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
-            <Shield className="size-4 text-muted-foreground" />
-            <span className="text-muted-foreground">Auth provider</span>
-            <span className="ml-auto font-medium capitalize">
-              {(user as unknown as { auth_provider?: string }).auth_provider || user.authProvider}
-            </span>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
             <CalendarDays className="size-4 text-muted-foreground" />
             <span className="text-muted-foreground">Member since</span>
             <span className="ml-auto font-medium">
@@ -157,29 +194,45 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label htmlFor="team" className="mb-1.5 block text-sm font-medium">
+              <label className="mb-1.5 block text-sm font-medium">
                 <Heart className="mr-1.5 inline size-3.5 text-muted-foreground" />
-                Favorite Team (3-letter code)
+                Favorite Club
               </label>
-              <Input
-                id="team"
-                value={favoriteTeam}
-                onChange={(e) => setFavoriteTeam(e.target.value.toUpperCase())}
-                placeholder="e.g. RMA, BAR, LIV"
-                maxLength={3}
-              />
+              <Select value={favoriteTeam} onValueChange={setFavoriteTeam}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your favorite team" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teams.map((team) => (
+                    <SelectItem key={team.id} value={team.code || team.name.slice(0, 3).toUpperCase()}>
+                      <div className="flex items-center gap-2">
+                        {team.logoUrl && (
+                          <Image src={team.logoUrl} alt={team.name} width={16} height={16} className="size-4 object-contain" />
+                        )}
+                        {team.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <label htmlFor="tz" className="mb-1.5 block text-sm font-medium">
+              <label className="mb-1.5 block text-sm font-medium">
                 <Clock className="mr-1.5 inline size-3.5 text-muted-foreground" />
                 Timezone
               </label>
-              <Input
-                id="tz"
-                value={timezone}
-                onChange={(e) => setTimezone(e.target.value)}
-                placeholder="e.g. Asia/Dhaka, America/New_York"
-              />
+              <Select value={timezone} onValueChange={setTimezone}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your timezone" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIMEZONES.map((tz) => (
+                    <SelectItem key={tz} value={tz}>
+                      {tz.replace(/_/g, " ")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <Button type="submit" disabled={saving} className="gap-2">
               {saving ? <Spinner className="size-4" /> : <Save className="size-4" />}
@@ -201,10 +254,7 @@ export default function ProfilePage() {
           <CardContent>
             <form onSubmit={handleChangePassword} className="space-y-4">
               <div>
-                <label
-                  htmlFor="current-pw"
-                  className="mb-1.5 block text-sm font-medium"
-                >
+                <label htmlFor="current-pw" className="mb-1.5 block text-sm font-medium">
                   Current Password
                 </label>
                 <Input
@@ -217,10 +267,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <label
-                  htmlFor="new-pw"
-                  className="mb-1.5 block text-sm font-medium"
-                >
+                <label htmlFor="new-pw" className="mb-1.5 block text-sm font-medium">
                   New Password
                 </label>
                 <Input
@@ -233,17 +280,8 @@ export default function ProfilePage() {
                   required
                 />
               </div>
-              <Button
-                type="submit"
-                variant="outline"
-                disabled={changingPassword}
-                className="gap-2"
-              >
-                {changingPassword ? (
-                  <Spinner className="size-4" />
-                ) : (
-                  <Lock className="size-4" />
-                )}
+              <Button type="submit" variant="outline" disabled={changingPassword} className="gap-2">
+                {changingPassword ? <Spinner className="size-4" /> : <Lock className="size-4" />}
                 Change Password
               </Button>
             </form>
