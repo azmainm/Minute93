@@ -21,14 +21,14 @@ export const metadata: Metadata = {
 };
 
 const techStack = [
-  { label: "NestJS 11", category: "Backend API" },
-  { label: "Next.js 16", category: "Frontend" },
-  { label: "PostgreSQL 16", category: "Database" },
-  { label: "Redis", category: "Cache & Pub/Sub" },
-  { label: "Kafka (Redpanda)", category: "Event Backbone" },
-  { label: "TypeScript", category: "Language" },
-  { label: "Docker", category: "Infrastructure" },
-  { label: "Nginx", category: "Reverse Proxy" },
+  { label: "NestJS 11", category: "Backend API", logo: "https://cdn.simpleicons.org/nestjs/E0234E" },
+  { label: "Next.js 16", category: "Frontend", logo: "https://cdn.simpleicons.org/nextdotjs/000000" },
+  { label: "PostgreSQL 16", category: "Database", logo: "https://cdn.simpleicons.org/postgresql/4169E1" },
+  { label: "Redis", category: "Cache & Pub/Sub", logo: "https://cdn.simpleicons.org/redis/DC382D" },
+  { label: "Kafka (Redpanda)", category: "Event Backbone", logo: "https://cdn.simpleicons.org/apachekafka/231F20" },
+  { label: "TypeScript", category: "Language", logo: "https://cdn.simpleicons.org/typescript/3178C6" },
+  { label: "Docker", category: "Infrastructure", logo: "https://cdn.simpleicons.org/docker/2496ED" },
+  { label: "Nginx", category: "Reverse Proxy", logo: "https://cdn.simpleicons.org/nginx/009639" },
 ];
 
 const architectureHighlights = [
@@ -174,13 +174,17 @@ export default function AboutPage() {
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Tech Stack</h2>
           </div>
           <div className="flex flex-wrap justify-center gap-3">
-            {techStack.map(({ label, category }) => (
+            {techStack.map(({ label, category, logo }) => (
               <div
                 key={label}
-                className="flex flex-col items-center rounded-xl border bg-background px-4 py-3 text-center transition-colors hover:border-primary/30"
+                className="flex items-center gap-3 rounded-xl border bg-background px-4 py-3 transition-colors hover:border-primary/30"
               >
-                <span className="text-sm font-semibold">{label}</span>
-                <span className="text-xs text-muted-foreground">{category}</span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={logo} alt={label} className="size-6" />
+                <div className="text-left">
+                  <span className="block text-sm font-semibold">{label}</span>
+                  <span className="block text-xs text-muted-foreground">{category}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -195,7 +199,7 @@ export default function AboutPage() {
             Minute93 is open source. Explore the codebase, the architecture docs, and the engineering decisions.
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <a href="https://github.com/azmainm/Minute93" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/azmainm/Minute93.git" target="_blank" rel="noopener noreferrer">
               <Button size="lg" className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
                 <GitFork className="size-4" />
                 View on GitHub
