@@ -99,7 +99,7 @@ export default function AboutPage() {
       {/* The Name */}
       <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl">
-          <Badge variant="outline" className="mb-4 text-xs">The Name</Badge>
+          <Badge variant="outline" className="mb-4 gap-1.5 text-xs"><Zap className="size-3" />The Name</Badge>
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
             93rd minute. Lisbon. 2014.
           </h2>
@@ -120,7 +120,7 @@ export default function AboutPage() {
       {/* The Builder */}
       <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl">
-          <Badge variant="outline" className="mb-4 text-xs">The Builder</Badge>
+          <Badge variant="outline" className="mb-4 gap-1.5 text-xs"><GitFork className="size-3" />The Builder</Badge>
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
             Built by a football enthusiast
           </h2>
@@ -141,7 +141,7 @@ export default function AboutPage() {
       {/* Architecture */}
       <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mb-10 text-center">
-          <Badge variant="outline" className="mb-4 text-xs">Architecture</Badge>
+          <Badge variant="outline" className="mb-4 gap-1.5 text-xs"><Layers className="size-3" />Architecture</Badge>
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
             What powers this
           </h2>
@@ -205,9 +205,9 @@ export default function AboutPage() {
                 View on GitHub
               </Button>
             </a>
-            <Link href="/matches">
+            <Link href="/article">
               <Button variant="outline" size="lg" className="gap-2">
-                Explore the App
+                Read the Article
                 <ArrowRight className="size-4" />
               </Button>
             </Link>
