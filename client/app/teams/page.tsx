@@ -67,9 +67,9 @@ export default function TeamsPage() {
             <Link key={team.id} href={`/teams/${team.id}`}>
               <Card className="group transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                 <CardContent className="flex items-center gap-4 p-4">
-                  {team.logoUrl ? (
+                  {team.logo_url ? (
                     <Image
-                      src={team.logoUrl}
+                      src={team.logo_url}
                       alt={team.name}
                       width={48}
                       height={48}
@@ -82,8 +82,8 @@ export default function TeamsPage() {
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold truncate">{team.name}</div>
-                    {team.groupName && (
-                      <div className="text-xs text-muted-foreground">Group {team.groupName}</div>
+                    {team.group_name && (
+                      <div className="text-xs text-muted-foreground">Group {team.group_name}</div>
                     )}
                   </div>
                   <ArrowRight className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />

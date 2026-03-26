@@ -77,8 +77,8 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user) {
       setName(user.name || "");
-      setFavoriteTeam((user as unknown as { favorite_team?: string }).favorite_team || "");
-      setTimezone((user as unknown as { timezone?: string }).timezone || "");
+      setFavoriteTeam(user.favorite_team || "");
+      setTimezone(user.timezone || "");
     }
   }, [user]);
 
@@ -142,7 +142,7 @@ export default function ProfilePage() {
     );
   }
 
-  const isCredentials = (user as unknown as { auth_provider?: string }).auth_provider === "credentials";
+  const isCredentials = user.auth_provider === "credentials";
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-8">
@@ -167,9 +167,7 @@ export default function ProfilePage() {
             <CalendarDays className="size-4 text-muted-foreground" />
             <span className="text-muted-foreground">Member since</span>
             <span className="ml-auto font-medium">
-              {new Date(
-                (user as unknown as { created_at?: string }).created_at || user.createdAt,
-              ).toLocaleDateString()}
+              {new Date(user.created_at).toLocaleDateString()}
             </span>
           </div>
         </CardContent>
@@ -206,8 +204,8 @@ export default function ProfilePage() {
                   {teams.map((team) => (
                     <SelectItem key={team.id} value={team.code || team.name.slice(0, 3).toUpperCase()}>
                       <div className="flex items-center gap-2">
-                        {team.logoUrl && (
-                          <Image src={team.logoUrl} alt={team.name} width={16} height={16} className="size-4 object-contain" />
+                        {team.logo_url && (
+                          <Image src={team.logo_url} alt={team.name} width={16} height={16} className="size-4 object-contain" />
                         )}
                         {team.name}
                       </div>

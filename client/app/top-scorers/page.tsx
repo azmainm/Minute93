@@ -66,7 +66,7 @@ export default function TopScorersPage() {
         <div className="space-y-2">
           {scorers.map((scorer, i) => (
             <Card
-              key={`${scorer.playerName}-${scorer.teamName}`}
+              key={`${scorer.name}-${scorer.team_name}`}
               className={cn(
                 "transition-all duration-200 hover:shadow-sm",
                 i < 3 && "ring-1 ring-primary/20",
@@ -81,28 +81,28 @@ export default function TopScorersPage() {
                   i === 2 && "bg-primary/10 text-primary",
                   i > 2 && "bg-muted text-muted-foreground",
                 )}>
-                  {scorer.rank || i + 1}
+                  {i + 1}
                 </div>
 
                 {/* Team Logo */}
-                {scorer.teamLogo ? (
+                {scorer.team_logo ? (
                   <Image
-                    src={scorer.teamLogo}
-                    alt={scorer.teamName}
+                    src={scorer.team_logo}
+                    alt={scorer.team_name}
                     width={28}
                     height={28}
                     className="size-7 object-contain"
                   />
                 ) : (
                   <div className="flex size-7 items-center justify-center rounded-full bg-muted text-[10px] font-bold">
-                    {scorer.teamName.slice(0, 2)}
+                    {scorer.team_name?.slice(0, 2)}
                   </div>
                 )}
 
                 {/* Player Info */}
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold truncate">{scorer.playerName}</div>
-                  <div className="text-xs text-muted-foreground truncate">{scorer.teamName}</div>
+                  <div className="text-sm font-semibold truncate">{scorer.name}</div>
+                  <div className="text-xs text-muted-foreground truncate">{scorer.team_name}</div>
                 </div>
 
                 {/* Goals */}

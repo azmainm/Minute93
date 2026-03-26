@@ -92,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         isLoading,
         isLoggedIn: !!user,
-        isAdmin: !!user?.isAdmin,
+        isAdmin: !!user?.is_admin,
         token,
         login,
         logout,

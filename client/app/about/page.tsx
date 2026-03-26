@@ -21,11 +21,11 @@ export const metadata: Metadata = {
 };
 
 const techStack = [
-  { label: "NestJS 11", category: "Backend API", logo: "https://cdn.simpleicons.org/nestjs/E0234E" },
-  { label: "Next.js 16", category: "Frontend", logo: "https://cdn.simpleicons.org/nextdotjs/000000" },
-  { label: "PostgreSQL 16", category: "Database", logo: "https://cdn.simpleicons.org/postgresql/4169E1" },
+  { label: "NestJS", category: "Backend API", logo: "https://cdn.simpleicons.org/nestjs/E0234E" },
+  { label: "Next.js", category: "Frontend", logo: "https://cdn.simpleicons.org/nextdotjs/000000" },
+  { label: "PostgreSQL", category: "Database", logo: "https://cdn.simpleicons.org/postgresql/4169E1" },
   { label: "Redis", category: "Cache & Pub/Sub", logo: "https://cdn.simpleicons.org/redis/DC382D" },
-  { label: "Kafka (Redpanda)", category: "Event Backbone", logo: "https://cdn.simpleicons.org/apachekafka/231F20" },
+  { label: "Kafka", category: "Event Backbone", logo: "https://cdn.simpleicons.org/apachekafka/231F20" },
   { label: "TypeScript", category: "Language", logo: "https://cdn.simpleicons.org/typescript/3178C6" },
   { label: "Docker", category: "Infrastructure", logo: "https://cdn.simpleicons.org/docker/2496ED" },
   { label: "Nginx", category: "Reverse Proxy", logo: "https://cdn.simpleicons.org/nginx/009639" },

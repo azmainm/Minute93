@@ -82,24 +82,24 @@ export function MatchCard({ match, compact }: MatchCardProps) {
           <div className="flex items-center gap-3">
             {/* Home Team */}
             <div className="flex flex-1 items-center gap-2.5">
-              {match.homeTeam?.logoUrl ? (
+              {match.home_team?.logo_url ? (
                 <Image
-                  src={match.homeTeam.logoUrl}
-                  alt={match.homeTeam.name}
+                  src={match.home_team.logo_url}
+                  alt={match.home_team.name}
                   width={28}
                   height={28}
                   className="size-7 object-contain"
                 />
               ) : (
                 <div className="flex size-7 items-center justify-center rounded-full bg-muted text-xs font-bold">
-                  {match.homeTeam?.code || "?"}
+                  {match.home_team?.code || "?"}
                 </div>
               )}
               <span className={cn(
                 "text-sm font-medium truncate",
                 compact && "text-xs",
               )}>
-                {match.homeTeam?.name || "TBD"}
+                {match.home_team?.name || "TBD"}
               </span>
             </div>
 
@@ -109,11 +109,11 @@ export function MatchCard({ match, compact }: MatchCardProps) {
               isLive ? "bg-primary/10 text-primary" : "bg-muted",
               compact && "text-sm min-w-[50px]",
             )}>
-              {match.homeScore !== null ? (
+              {match.home_score !== null ? (
                 <>
-                  <span>{match.homeScore}</span>
+                  <span>{match.home_score}</span>
                   <span className="text-muted-foreground">-</span>
-                  <span>{match.awayScore}</span>
+                  <span>{match.away_score}</span>
                 </>
               ) : (
                 <span className="text-xs text-muted-foreground">vs</span>
@@ -122,24 +122,24 @@ export function MatchCard({ match, compact }: MatchCardProps) {
 
             {/* Away Team */}
             <div className="flex flex-1 flex-row-reverse items-center gap-2.5">
-              {match.awayTeam?.logoUrl ? (
+              {match.away_team?.logo_url ? (
                 <Image
-                  src={match.awayTeam.logoUrl}
-                  alt={match.awayTeam.name}
+                  src={match.away_team.logo_url}
+                  alt={match.away_team.name}
                   width={28}
                   height={28}
                   className="size-7 object-contain"
                 />
               ) : (
                 <div className="flex size-7 items-center justify-center rounded-full bg-muted text-xs font-bold">
-                  {match.awayTeam?.code || "?"}
+                  {match.away_team?.code || "?"}
                 </div>
               )}
               <span className={cn(
                 "text-sm font-medium truncate text-right",
                 compact && "text-xs",
               )}>
-                {match.awayTeam?.name || "TBD"}
+                {match.away_team?.name || "TBD"}
               </span>
             </div>
           </div>
@@ -149,7 +149,7 @@ export function MatchCard({ match, compact }: MatchCardProps) {
             <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Clock className="size-3" />
-                {formatKickoff(match.kickoffAt)}
+                {formatKickoff(match.kickoff_at)}
               </span>
               {match.venue && (
                 <span className="flex items-center gap-1 truncate">

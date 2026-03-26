@@ -15,66 +15,70 @@ export interface PaginatedData<T> {
 }
 
 // ─── Domain Types ───
+// All field names match the snake_case returned by the NestJS API
 
 export interface User {
   id: string;
   email: string;
   name: string | null;
-  avatarUrl: string | null;
-  authProvider: "google" | "credentials";
-  isAdmin: boolean;
-  createdAt: string;
+  avatar_url: string | null;
+  auth_provider: "google" | "credentials";
+  is_admin: boolean;
+  created_at: string;
+  favorite_team?: string | null;
+  timezone?: string | null;
 }
 
 export interface League {
   id: number;
-  apiFootballId: number;
+  api_football_id: number;
   name: string;
   season: number;
-  logoUrl: string | null;
-  isActive: boolean;
+  logo_url: string | null;
+  is_active: boolean;
 }
 
 export interface Team {
   id: number;
-  apiFootballId: number;
+  api_football_id: number;
   name: string;
   code: string | null;
-  logoUrl: string | null;
-  leagueId: number;
+  logo_url: string | null;
+  league_id: number;
   league?: League;
-  groupName: string | null;
-  groupPosition: number | null;
+  group_name: string | null;
+  group_position: number | null;
 }
 
 export interface Player {
   id: number;
-  apiFootballId: number;
+  api_football_id: number;
   name: string;
-  teamId: number;
+  team_id: number;
   team?: Team;
   position: string | null;
   number: number | null;
-  photoUrl: string | null;
+  photo_url: string | null;
 }
 
 export interface Match {
   id: number;
-  apiFootballId: number;
-  leagueId: number;
+  api_football_id: number;
+  league_id: number;
   league?: League;
-  homeTeamId: number;
-  homeTeam?: Team;
-  awayTeamId: number;
-  awayTeam?: Team;
-  homeScore: number | null;
-  awayScore: number | null;
+  home_team_id: number;
+  home_team?: Team;
+  away_team_id: number;
+  away_team?: Team;
+  home_score: number | null;
+  away_score: number | null;
   status: MatchStatus;
+  season: number;
   round: string | null;
-  kickoffAt: string;
+  kickoff_at: string;
   venue: string | null;
   statistics: Record<string, unknown> | null;
-  updatedAt: string;
+  updated_at: string;
 }
 
 export type MatchStatus =
@@ -91,14 +95,14 @@ export type MatchStatus =
 
 export interface MatchEvent {
   id: number;
-  matchId: number;
-  eventType: EventType;
+  match_id: number;
+  event_type: EventType;
   minute: number | null;
-  playerName: string | null;
-  teamId: number | null;
+  player_name: string | null;
+  team_id: number | null;
   team?: Team;
   detail: Record<string, unknown> | null;
-  createdAt: string;
+  created_at: string;
 }
 
 export type EventType =
@@ -112,62 +116,64 @@ export type EventType =
 
 export interface MatchLineup {
   id: number;
-  matchId: number;
-  teamId: number;
-  playerName: string;
-  playerNumber: number | null;
+  match_id: number;
+  team_id: number;
+  player_name: string;
+  player_number: number | null;
   position: string | null;
-  isStarter: boolean;
+  is_starter: boolean;
 }
 
+// Standings and top scorers come from raw SQL materialized views
 export interface StandingsRow {
-  teamId: number;
-  teamName: string;
-  teamLogo: string | null;
+  id: number;
+  name: string;
+  code: string | null;
+  logo_url: string | null;
+  group_name: string | null;
+  season: number;
   played: number;
-  won: number;
-  drawn: number;
-  lost: number;
-  goalsFor: number;
-  goalsAgainst: number;
-  goalDifference: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goals_for: number;
+  goals_against: number;
+  goal_difference: number;
   points: number;
-  rank: number;
 }
 
 export interface TopScorer {
-  playerName: string;
-  teamName: string;
-  teamLogo: string | null;
+  name: string;
+  team_name: string;
+  team_logo: string | null;
   goals: number;
-  rank: number;
+  season: number;
 }
 
 export interface SearchResult {
   type: "player" | "team";
   id: number;
   name: string;
-  imageUrl: string | null;
-  subtitle: string;
+  meta: string | null;
   similarity: number;
 }
 
-// ─── Player Stats (aggregated from match_events) ───
+// ─── Composite types for detail pages ───
+// These match the exact shape returned by the NestJS API
 
-export interface PlayerStats {
-  goals: number;
-  assists: number;
-  yellowCards: number;
-  redCards: number;
-  appearances: number;
+export interface PlayerDetail {
+  player: Player;
+  stats: {
+    goals: number;
+    assists: number;
+    yellowCards: number;
+    redCards: number;
+  };
+  recentEvents: MatchEvent[];
 }
 
-export interface PlayerDetail extends Player {
-  stats: PlayerStats;
-  recentMatches: Match[];
-}
-
-export interface TeamDetail extends Team {
+export interface TeamDetail {
+  team: Team;
   players: Player[];
   recentMatches: Match[];
   upcomingMatches: Match[];

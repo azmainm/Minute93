@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Team } from './entities/team.entity.js';
 import { Match } from '../match/entities/match.entity.js';
+import { Player } from '../player/entities/player.entity.js';
 
 @Injectable()
 export class TeamService {
@@ -11,6 +12,8 @@ export class TeamService {
     private readonly teamRepository: Repository<Team>,
     @InjectRepository(Match)
     private readonly matchRepository: Repository<Match>,
+    @InjectRepository(Player)
+    private readonly playerRepository: Repository<Player>,
   ) {}
 
   async findAll(): Promise<Team[]> {
@@ -22,6 +25,7 @@ export class TeamService {
 
   async findById(id: number): Promise<{
     team: Team;
+    players: Player[];
     recentMatches: Match[];
     upcomingMatches: Match[];
   }> {
@@ -54,6 +58,11 @@ export class TeamService {
       .take(5)
       .getMany();
 
-    return { team, recentMatches, upcomingMatches };
+    const players = await this.playerRepository.find({
+      where: { team_id: id },
+      order: { position: 'ASC', name: 'ASC' },
+    });
+
+    return { team, players, recentMatches, upcomingMatches };
   }
 }

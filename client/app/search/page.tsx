@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Search as SearchIcon, User, Users, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -96,22 +95,14 @@ export default function SearchPage() {
               <Link key={`${result.type}-${result.id}`} href={href}>
                 <Card className="group transition-all duration-200 hover:shadow-sm hover:-translate-y-0.5">
                   <CardContent className="flex items-center gap-4 p-4">
-                    {result.imageUrl ? (
-                      <Image
-                        src={result.imageUrl}
-                        alt={result.name}
-                        width={40}
-                        height={40}
-                        className="size-10 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex size-10 items-center justify-center rounded-full bg-muted">
-                        <Icon className="size-5 text-muted-foreground" />
-                      </div>
-                    )}
+                    <div className="flex size-10 items-center justify-center rounded-full bg-muted">
+                      <Icon className="size-5 text-muted-foreground" />
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-semibold truncate">{result.name}</div>
-                      <div className="text-xs text-muted-foreground">{result.subtitle}</div>
+                      {result.meta && (
+                        <div className="text-xs text-muted-foreground">{result.meta}</div>
+                      )}
                     </div>
                     <Badge variant="outline" className="text-xs capitalize">
                       {result.type}

@@ -95,39 +95,39 @@ export default function StandingsPage() {
               <TableBody>
                 {standings.map((row, i) => (
                   <TableRow
-                    key={row.teamId}
+                    key={row.id}
                     className={cn(
                       "transition-colors",
                       i < 2 && "bg-primary/5",
                     )}
                   >
                     <TableCell className="text-center text-sm font-mono font-medium text-muted-foreground">
-                      {row.rank}
+                      {i + 1}
                     </TableCell>
                     <TableCell>
-                      <Link href={`/teams/${row.teamId}`} className="flex items-center gap-2.5 transition-colors hover:text-primary">
-                        {row.teamLogo ? (
-                          <Image src={row.teamLogo} alt={row.teamName} width={20} height={20} className="size-5 object-contain" />
+                      <Link href={`/teams/${row.id}`} className="flex items-center gap-2.5 transition-colors hover:text-primary">
+                        {row.logo_url ? (
+                          <Image src={row.logo_url} alt={row.name} width={20} height={20} className="size-5 object-contain" />
                         ) : (
                           <div className="flex size-5 items-center justify-center rounded-full bg-muted text-[10px] font-bold">
-                            {row.teamName.slice(0, 2)}
+                            {row.name.slice(0, 2)}
                           </div>
                         )}
-                        <span className="text-sm font-medium">{row.teamName}</span>
+                        <span className="text-sm font-medium">{row.name}</span>
                       </Link>
                     </TableCell>
                     <TableCell className="text-center text-sm">{row.played}</TableCell>
-                    <TableCell className="text-center text-sm">{row.won}</TableCell>
-                    <TableCell className="text-center text-sm">{row.drawn}</TableCell>
-                    <TableCell className="text-center text-sm">{row.lost}</TableCell>
-                    <TableCell className="hidden text-center text-sm sm:table-cell">{row.goalsFor}</TableCell>
-                    <TableCell className="hidden text-center text-sm sm:table-cell">{row.goalsAgainst}</TableCell>
+                    <TableCell className="text-center text-sm">{row.wins}</TableCell>
+                    <TableCell className="text-center text-sm">{row.draws}</TableCell>
+                    <TableCell className="text-center text-sm">{row.losses}</TableCell>
+                    <TableCell className="hidden text-center text-sm sm:table-cell">{row.goals_for}</TableCell>
+                    <TableCell className="hidden text-center text-sm sm:table-cell">{row.goals_against}</TableCell>
                     <TableCell className={cn(
                       "text-center text-sm font-medium",
-                      row.goalDifference > 0 && "text-emerald-600",
-                      row.goalDifference < 0 && "text-red-500",
+                      row.goal_difference > 0 && "text-emerald-600",
+                      row.goal_difference < 0 && "text-red-500",
                     )}>
-                      {row.goalDifference > 0 ? `+${row.goalDifference}` : row.goalDifference}
+                      {row.goal_difference > 0 ? `+${row.goal_difference}` : row.goal_difference}
                     </TableCell>
                     <TableCell className="text-center text-sm font-bold">{row.points}</TableCell>
                   </TableRow>

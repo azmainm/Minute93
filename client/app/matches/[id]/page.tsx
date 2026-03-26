@@ -122,8 +122,8 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
   }
 
   const isLive = ["live", "extra_time", "penalties", "halftime"].includes(match.status);
-  const homeLineup = lineups.filter((l) => l.teamId === match.homeTeamId);
-  const awayLineup = lineups.filter((l) => l.teamId === match.awayTeamId);
+  const homeLineup = lineups.filter((l) => l.team_id === match.home_team_id);
+  const awayLineup = lineups.filter((l) => l.team_id === match.away_team_id);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
@@ -156,13 +156,13 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
           {/* Teams & Score */}
           <div className="flex items-center justify-between gap-4">
             {/* Home */}
-            <Link href={`/teams/${match.homeTeamId}`} className="flex flex-1 flex-col items-center gap-3 transition-opacity hover:opacity-80">
-              {match.homeTeam?.logoUrl ? (
-                <Image src={match.homeTeam.logoUrl} alt={match.homeTeam.name} width={56} height={56} className="size-14 object-contain" />
+            <Link href={`/teams/${match.home_team_id}`} className="flex flex-1 flex-col items-center gap-3 transition-opacity hover:opacity-80">
+              {match.home_team?.logo_url ? (
+                <Image src={match.home_team.logo_url} alt={match.home_team.name} width={56} height={56} className="size-14 object-contain" />
               ) : (
-                <div className="flex size-14 items-center justify-center rounded-full bg-muted text-lg font-bold">{match.homeTeam?.code || "?"}</div>
+                <div className="flex size-14 items-center justify-center rounded-full bg-muted text-lg font-bold">{match.home_team?.code || "?"}</div>
               )}
-              <span className="text-center text-sm font-semibold sm:text-base">{match.homeTeam?.name || "TBD"}</span>
+              <span className="text-center text-sm font-semibold sm:text-base">{match.home_team?.name || "TBD"}</span>
             </Link>
 
             {/* Score */}
@@ -170,11 +170,11 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
               "flex items-center gap-2 rounded-xl px-5 py-3 font-mono text-3xl font-extrabold sm:text-4xl",
               isLive ? "bg-primary/10 text-primary" : "bg-muted",
             )}>
-              {match.homeScore !== null ? (
+              {match.home_score !== null ? (
                 <>
-                  <span>{match.homeScore}</span>
+                  <span>{match.home_score}</span>
                   <span className="text-lg text-muted-foreground">-</span>
-                  <span>{match.awayScore}</span>
+                  <span>{match.away_score}</span>
                 </>
               ) : (
                 <span className="text-lg text-muted-foreground">vs</span>
@@ -182,13 +182,13 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
             </div>
 
             {/* Away */}
-            <Link href={`/teams/${match.awayTeamId}`} className="flex flex-1 flex-col items-center gap-3 transition-opacity hover:opacity-80">
-              {match.awayTeam?.logoUrl ? (
-                <Image src={match.awayTeam.logoUrl} alt={match.awayTeam.name} width={56} height={56} className="size-14 object-contain" />
+            <Link href={`/teams/${match.away_team_id}`} className="flex flex-1 flex-col items-center gap-3 transition-opacity hover:opacity-80">
+              {match.away_team?.logo_url ? (
+                <Image src={match.away_team.logo_url} alt={match.away_team.name} width={56} height={56} className="size-14 object-contain" />
               ) : (
-                <div className="flex size-14 items-center justify-center rounded-full bg-muted text-lg font-bold">{match.awayTeam?.code || "?"}</div>
+                <div className="flex size-14 items-center justify-center rounded-full bg-muted text-lg font-bold">{match.away_team?.code || "?"}</div>
               )}
-              <span className="text-center text-sm font-semibold sm:text-base">{match.awayTeam?.name || "TBD"}</span>
+              <span className="text-center text-sm font-semibold sm:text-base">{match.away_team?.name || "TBD"}</span>
             </Link>
           </div>
 
@@ -196,7 +196,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Clock className="size-3" />
-              {new Date(match.kickoffAt).toLocaleDateString("en-US", {
+              {new Date(match.kickoff_at).toLocaleDateString("en-US", {
                 weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
               })}
             </span>
@@ -244,15 +244,15 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
                       <div className="flex w-10 items-center justify-center text-sm font-mono font-bold text-muted-foreground">
                         {event.minute !== null ? `${event.minute}'` : "—"}
                       </div>
-                      <div className="flex-shrink-0">{eventIcon(event.eventType)}</div>
+                      <div className="flex-shrink-0">{eventIcon(event.event_type)}</div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium">{event.playerName || "Unknown"}</div>
-                        <div className="text-xs text-muted-foreground">{eventLabel(event.eventType)}</div>
+                        <div className="text-sm font-medium">{event.player_name || "Unknown"}</div>
+                        <div className="text-xs text-muted-foreground">{eventLabel(event.event_type)}</div>
                       </div>
                       {event.team && (
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          {event.team.logoUrl && (
-                            <Image src={event.team.logoUrl} alt={event.team.name} width={16} height={16} className="size-4 object-contain" />
+                          {event.team.logo_url && (
+                            <Image src={event.team.logo_url} alt={event.team.name} width={16} height={16} className="size-4 object-contain" />
                           )}
                           <span className="hidden sm:inline">{event.team.name}</span>
                         </div>
@@ -275,14 +275,14 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
               {[
-                { team: match.homeTeam, players: homeLineup },
-                { team: match.awayTeam, players: awayLineup },
+                { team: match.home_team, players: homeLineup },
+                { team: match.away_team, players: awayLineup },
               ].map(({ team, players }) => (
                 <Card key={team?.id || "unknown"}>
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-sm">
-                      {team?.logoUrl && (
-                        <Image src={team.logoUrl} alt={team.name} width={20} height={20} className="size-5 object-contain" />
+                      {team?.logo_url && (
+                        <Image src={team.logo_url} alt={team.name} width={20} height={20} className="size-5 object-contain" />
                       )}
                       {team?.name || "TBD"}
                     </CardTitle>
@@ -292,28 +292,28 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
                       Starting XI
                     </div>
                     <div className="space-y-1">
-                      {players.filter((p) => p.isStarter).map((p) => (
+                      {players.filter((p) => p.is_starter).map((p) => (
                         <div key={p.id} className="flex items-center justify-between py-1 text-sm">
-                          <span>{p.playerName}</span>
+                          <span>{p.player_name}</span>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             {p.position && <span>{p.position}</span>}
-                            {p.playerNumber && <Badge variant="outline" className="text-xs">{p.playerNumber}</Badge>}
+                            {p.player_number && <Badge variant="outline" className="text-xs">{p.player_number}</Badge>}
                           </div>
                         </div>
                       ))}
                     </div>
-                    {players.some((p) => !p.isStarter) && (
+                    {players.some((p) => !p.is_starter) && (
                       <>
                         <Separator className="my-3" />
                         <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                           Substitutes
                         </div>
                         <div className="space-y-1">
-                          {players.filter((p) => !p.isStarter).map((p) => (
+                          {players.filter((p) => !p.is_starter).map((p) => (
                             <div key={p.id} className="flex items-center justify-between py-1 text-sm text-muted-foreground">
-                              <span>{p.playerName}</span>
+                              <span>{p.player_name}</span>
                               <div className="flex items-center gap-2 text-xs">
-                                {p.playerNumber && <Badge variant="outline" className="text-xs">{p.playerNumber}</Badge>}
+                                {p.player_number && <Badge variant="outline" className="text-xs">{p.player_number}</Badge>}
                               </div>
                             </div>
                           ))}

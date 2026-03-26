@@ -22,15 +22,15 @@ import type { TeamDetail } from "@/lib/types";
 
 export default function TeamDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const [team, setTeam] = useState<TeamDetail | null>(null);
+  const [data, setData] = useState<TeamDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchTeam() {
       try {
-        const data = await getTeam(Number(id));
-        setTeam(data);
+        const result = await getTeam(Number(id));
+        setData(result);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load team");
       } finally {
@@ -56,7 +56,7 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
     );
   }
 
-  if (error || !team) {
+  if (error || !data) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <ErrorMessage message={error || "Team not found"} />
@@ -64,7 +64,8 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
     );
   }
 
-  const starters = team.players?.filter((p) => p.position) || [];
+  const { team, players = [], recentMatches, upcomingMatches } = data;
+  const starters = players.filter((p) => p.position) || [];
   const groupedByPosition: Record<string, typeof starters> = {};
   for (const player of starters) {
     const pos = player.position || "Unknown";
@@ -82,8 +83,8 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
 
       {/* Team Header */}
       <div className="mb-8 flex items-center gap-4">
-        {team.logoUrl ? (
-          <Image src={team.logoUrl} alt={team.name} width={64} height={64} className="size-16 object-contain" />
+        {team.logo_url ? (
+          <Image src={team.logo_url} alt={team.name} width={64} height={64} className="size-16 object-contain" />
         ) : (
           <div className="flex size-16 items-center justify-center rounded-full bg-muted text-xl font-bold">
             {team.code || team.name.slice(0, 2).toUpperCase()}
@@ -93,8 +94,8 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{team.name}</h1>
           <div className="mt-1 flex items-center gap-2">
             {team.code && <Badge variant="outline">{team.code}</Badge>}
-            {team.groupName && (
-              <Badge variant="secondary">Group {team.groupName}</Badge>
+            {team.group_name && (
+              <Badge variant="secondary">Group {team.group_name}</Badge>
             )}
           </div>
         </div>
@@ -136,8 +137,8 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
                         <Link key={player.id} href={`/players/${player.id}`}>
                           <Card className="group transition-all duration-200 hover:shadow-sm hover:-translate-y-0.5">
                             <CardContent className="flex items-center gap-3 p-3">
-                              {player.photoUrl ? (
-                                <Image src={player.photoUrl} alt={player.name} width={36} height={36} className="size-9 rounded-full object-cover" />
+                              {player.photo_url ? (
+                                <Image src={player.photo_url} alt={player.name} width={36} height={36} className="size-9 rounded-full object-cover" />
                               ) : (
                                 <div className="flex size-9 items-center justify-center rounded-full bg-muted">
                                   <User className="size-4 text-muted-foreground" />
@@ -166,11 +167,11 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
 
         {/* Recent Matches */}
         <TabsContent value="recent">
-          {!team.recentMatches || team.recentMatches.length === 0 ? (
+          {!recentMatches || recentMatches.length === 0 ? (
             <EmptyState icon={Trophy} title="No recent matches" description="Recent results will appear here after matches are played." />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2">
-              {team.recentMatches.map((match) => (
+              {recentMatches.map((match) => (
                 <MatchCard key={match.id} match={match} compact />
               ))}
             </div>
@@ -179,11 +180,11 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
 
         {/* Upcoming Matches */}
         <TabsContent value="upcoming">
-          {!team.upcomingMatches || team.upcomingMatches.length === 0 ? (
+          {!upcomingMatches || upcomingMatches.length === 0 ? (
             <EmptyState icon={CalendarDays} title="No upcoming matches" description="Upcoming fixtures will appear here when scheduled." />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2">
-              {team.upcomingMatches.map((match) => (
+              {upcomingMatches.map((match) => (
                 <MatchCard key={match.id} match={match} compact />
               ))}
             </div>
