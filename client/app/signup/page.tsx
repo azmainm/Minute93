@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { UserPlus, Mail, Lock, User, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,12 +12,19 @@ import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { signup } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { login, isLoggedIn } = useAuth();
+
+  useEffect(() => {
+    if (isLoggedIn) router.push("/");
+  }, [isLoggedIn, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,9 +39,8 @@ export default function SignupPage() {
     setLoading(true);
     try {
       const { accessToken } = await signup(email, password, name);
-      localStorage.setItem("token", accessToken);
+      await login(accessToken);
       toast.success("Account created! Welcome to Minute93.");
-      window.location.href = "/";
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Signup failed");
     } finally {

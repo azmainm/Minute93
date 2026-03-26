@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
 import { LogIn, Mail, Lock, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,12 +11,38 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
-import { login } from "@/lib/api";
+import { login as apiLogin } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
+
+function GoogleCallbackHandler() {
+  const searchParams = useSearchParams();
+  const { login } = useAuth();
+
+  useEffect(() => {
+    const token = searchParams.get("token");
+    if (token) {
+      login(token).then(() => {
+        toast.success("Welcome back!");
+      });
+    }
+  }, [searchParams, login]);
+
+  return null;
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { login, isLoggedIn, isAdmin } = useAuth();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push(isAdmin ? "/admin/analytics" : "/");
+    }
+  }, [isLoggedIn, isAdmin, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,10 +52,9 @@ export default function LoginPage() {
     }
     setLoading(true);
     try {
-      const { accessToken } = await login(email, password);
-      localStorage.setItem("token", accessToken);
+      const { accessToken } = await apiLogin(email, password);
+      await login(accessToken);
       toast.success("Welcome back!");
-      window.location.href = "/";
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Login failed");
     } finally {
@@ -40,6 +66,9 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-[calc(100vh-10rem)] items-center justify-center px-4 py-12">
+      <Suspense fallback={null}>
+        <GoogleCallbackHandler />
+      </Suspense>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto mb-4 flex items-center gap-2">

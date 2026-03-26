@@ -133,3 +133,72 @@ export async function search(query: string) {
     `/search?q=${encodeURIComponent(query)}`,
   );
 }
+
+// ─── Profile ───
+
+export async function updateProfile(
+  token: string,
+  data: { name?: string; favorite_team?: string; timezone?: string },
+) {
+  return request<import("./types").User>("/auth/profile", {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function changePassword(
+  token: string,
+  currentPassword: string,
+  newPassword: string,
+) {
+  return request<{ message: string }>("/auth/change-password", {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+}
+
+// ─── Admin Analytics ───
+
+export async function getAnalyticsOverview(token: string) {
+  return request<unknown>("/admin/analytics/overview", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAnalyticsGeography(token: string) {
+  return request<unknown[]>("/admin/analytics/geography", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAnalyticsEngagement(token: string) {
+  return request<unknown>("/admin/analytics/engagement", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAnalyticsFeatures(token: string) {
+  return request<unknown>("/admin/analytics/features", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAnalyticsSnapshots(token: string) {
+  return request<unknown[]>("/admin/analytics/snapshots", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAnalyticsIncidents(token: string) {
+  return request<unknown[]>("/admin/analytics/incidents", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAnalyticsLoadTests(token: string) {
+  return request<unknown[]>("/admin/analytics/load-tests", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}

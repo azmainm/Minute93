@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Trophy,
   Search,
@@ -11,14 +11,16 @@ import {
   Users,
   BarChart3,
   Menu,
-  X,
   Zap,
   Info,
   LogIn,
+  LogOut,
+  UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { useAuth } from "@/lib/auth-context";
 
 const navLinks = [
   { href: "/matches", label: "Matches", icon: CalendarDays },
@@ -28,14 +30,16 @@ const navLinks = [
   { href: "/search", label: "Search", icon: Search },
 ];
 
-const secondaryLinks = [
-  { href: "/about", label: "About", icon: Info },
-  { href: "/login", label: "Sign In", icon: LogIn },
-];
-
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const { user, isLoggedIn, isAdmin, logout } = useAuth();
+
+  function handleLogout() {
+    logout();
+    router.push("/");
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
@@ -85,11 +89,39 @@ export function Navbar() {
               About
             </Button>
           </Link>
-          <Link href="/login">
-            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-              Sign In
-            </Button>
-          </Link>
+          {isAdmin && (
+            <Link href="/admin/analytics">
+              <Button variant="ghost" size="sm" className="text-muted-foreground">
+                <BarChart3 className="mr-1.5 size-3.5" />
+                Dashboard
+              </Button>
+            </Link>
+          )}
+          {isLoggedIn ? (
+            <div className="flex items-center gap-2">
+              <Link href="/profile">
+                <Button variant="ghost" size="sm" className="text-muted-foreground">
+                  <UserCircle className="mr-1.5 size-3.5" />
+                  {user?.name || "Profile"}
+                </Button>
+              </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="text-muted-foreground"
+              >
+                <LogOut className="mr-1.5 size-3.5" />
+                Logout
+              </Button>
+            </div>
+          ) : (
+            <Link href="/login">
+              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
+                Sign In
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Mobile Hamburger */}
@@ -142,36 +174,74 @@ export function Navbar() {
                 </div>
                 <div className="my-4 border-t" />
                 <div className="space-y-1">
-                  {secondaryLinks.map((link) => {
-                    const Icon = link.icon;
-                    const isActive = pathname === link.href;
-                    return (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setOpen(false)}
-                        className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                          isActive
-                            ? "bg-primary/10 text-primary"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                        )}
-                      >
-                        <Icon className="size-4" />
-                        {link.label}
-                      </Link>
-                    );
-                  })}
+                  <Link
+                    href="/about"
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                      pathname === "/about"
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                  >
+                    <Info className="size-4" />
+                    About
+                  </Link>
+                  {isAdmin && (
+                    <Link
+                      href="/admin/analytics"
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                        pathname.startsWith("/admin")
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      <BarChart3 className="size-4" />
+                      Dashboard
+                    </Link>
+                  )}
+                  {isLoggedIn && (
+                    <Link
+                      href="/profile"
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                        pathname === "/profile"
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      <UserCircle className="size-4" />
+                      Profile
+                    </Link>
+                  )}
                 </div>
               </div>
 
               {/* Mobile Footer */}
               <div className="border-t px-4 py-4">
-                <Link href="/login" onClick={() => setOpen(false)}>
-                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                    Sign In
+                {isLoggedIn ? (
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2"
+                    onClick={() => {
+                      handleLogout();
+                      setOpen(false);
+                    }}
+                  >
+                    <LogOut className="size-4" />
+                    Logout
                   </Button>
-                </Link>
+                ) : (
+                  <Link href="/login" onClick={() => setOpen(false)}>
+                    <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                      <LogIn className="mr-2 size-4" />
+                      Sign In
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
           </SheetContent>

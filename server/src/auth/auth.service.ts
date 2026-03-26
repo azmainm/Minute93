@@ -11,6 +11,8 @@ import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity.js';
 import { SignupDto } from './dto/signup.dto.js';
 import { LoginDto } from './dto/login.dto.js';
+import { ChangePasswordDto } from './dto/change-password.dto.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
 
 const SALT_ROUNDS = 10;
 
@@ -108,6 +110,51 @@ export class AuthService {
 
   async findById(id: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { id } });
+  }
+
+  async changePassword(
+    userId: string,
+    dto: ChangePasswordDto,
+  ): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user || user.auth_provider !== 'credentials' || !user.password_hash) {
+      throw new UnauthorizedException(
+        'Password change is only available for email/password accounts',
+      );
+    }
+
+    const isCurrentValid = await bcrypt.compare(
+      dto.currentPassword,
+      user.password_hash,
+    );
+
+    if (!isCurrentValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    user.password_hash = await bcrypt.hash(dto.newPassword, SALT_ROUNDS);
+    await this.userRepository.save(user);
+    this.logger.log(`Password changed for user: ${user.email}`);
+  }
+
+  async updateProfile(
+    userId: string,
+    dto: UpdateProfileDto,
+  ): Promise<Omit<User, 'password_hash'>> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (dto.name !== undefined) user.name = dto.name;
+    if (dto.favorite_team !== undefined) user.favorite_team = dto.favorite_team;
+    if (dto.timezone !== undefined) user.timezone = dto.timezone;
+
+    const saved = await this.userRepository.save(user);
+    const { password_hash, ...profile } = saved;
+    return profile;
   }
 
   private generateToken(user: User): { accessToken: string } {
