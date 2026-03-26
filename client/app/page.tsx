@@ -8,6 +8,7 @@ import {
   Radio,
   BarChart3,
   Users,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -183,6 +184,12 @@ export default function HomePage() {
               <Button size="lg" className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto">
                 Get Started
                 <ArrowRight className="size-4" />
+              </Button>
+            </Link>
+            <Link href="/article">
+              <Button variant="outline" size="lg" className="w-full gap-2 sm:w-auto">
+                <BookOpen className="size-4" />
+                Read the Article
               </Button>
             </Link>
           </div>
