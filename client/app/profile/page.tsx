@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -11,6 +11,8 @@ import {
   Lock,
   Save,
   CalendarDays,
+  ChevronsUpDown,
+  Check,
 } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,9 +25,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { updateProfile, changePassword, getTeams } from "@/lib/api";
 import type { Team } from "@/lib/types";
@@ -63,6 +79,8 @@ export default function ProfilePage() {
   const [timezone, setTimezone] = useState("");
   const [saving, setSaving] = useState(false);
   const [teams, setTeams] = useState<Team[]>([]);
+
+  const [teamSearchOpen, setTeamSearchOpen] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -196,23 +214,63 @@ export default function ProfilePage() {
                 <Heart className="mr-1.5 inline size-3.5 text-muted-foreground" />
                 Favorite Club
               </label>
-              <Select value={favoriteTeam} onValueChange={setFavoriteTeam}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your favorite team" />
-                </SelectTrigger>
-                <SelectContent>
-                  {teams.map((team) => (
-                    <SelectItem key={team.id} value={team.code || team.name.slice(0, 3).toUpperCase()}>
-                      <div className="flex items-center gap-2">
-                        {team.logo_url && (
-                          <Image src={team.logo_url} alt={team.name} width={16} height={16} className="size-4 object-contain" />
+              <Popover open={teamSearchOpen} onOpenChange={setTeamSearchOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={teamSearchOpen}
+                    className="w-full justify-between font-normal"
+                  >
+                    {favoriteTeam ? (
+                      <span className="flex items-center gap-2">
+                        {teams.find((t) => (t.code || t.name.slice(0, 3).toUpperCase()) === favoriteTeam)?.logo_url && (
+                          <Image
+                            src={teams.find((t) => (t.code || t.name.slice(0, 3).toUpperCase()) === favoriteTeam)!.logo_url!}
+                            alt=""
+                            width={16}
+                            height={16}
+                            className="size-4 object-contain"
+                          />
                         )}
-                        {team.name}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                        {teams.find((t) => (t.code || t.name.slice(0, 3).toUpperCase()) === favoriteTeam)?.name || favoriteTeam}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">Search for a team...</span>
+                    )}
+                    <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search teams..." />
+                    <CommandList>
+                      <CommandEmpty>No team found.</CommandEmpty>
+                      <CommandGroup>
+                        {teams.map((team) => {
+                          const value = team.code || team.name.slice(0, 3).toUpperCase();
+                          return (
+                            <CommandItem
+                              key={team.id}
+                              value={team.name}
+                              onSelect={() => {
+                                setFavoriteTeam(value);
+                                setTeamSearchOpen(false);
+                              }}
+                            >
+                              <Check className={cn("mr-2 size-4", favoriteTeam === value ? "opacity-100" : "opacity-0")} />
+                              {team.logo_url && (
+                                <Image src={team.logo_url} alt={team.name} width={16} height={16} className="mr-2 size-4 object-contain" />
+                              )}
+                              {team.name}
+                            </CommandItem>
+                          );
+                        })}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium">
