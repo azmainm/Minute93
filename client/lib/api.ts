@@ -99,9 +99,8 @@ export async function getMatchLineups(id: number) {
 
 // ─── Teams ───
 
-export async function getTeams(params?: Record<string, string>) {
-  const qs = params ? "?" + new URLSearchParams(params).toString() : "";
-  return request<PaginatedData<import("./types").Team>>(`/teams${qs}`);
+export async function getTeams() {
+  return request<import("./types").Team[]>("/teams");
 }
 
 export async function getTeam(id: number) {

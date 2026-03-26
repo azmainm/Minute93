@@ -20,8 +20,8 @@ export default function TeamsPage() {
   useEffect(() => {
     async function fetchTeams() {
       try {
-        const data = await getTeams({ limit: "100" });
-        setTeams(data.items);
+        const data = await getTeams();
+        setTeams(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load teams");
       } finally {
