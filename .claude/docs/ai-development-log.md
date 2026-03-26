@@ -120,3 +120,52 @@ Living document tracking how AI coding tools (Claude Code) are used in building 
 - Claude Code (CLI) with user's creative brief as design spec
 - Many small commits on main (10 commits in this session)
 - Next.js 16 docs consulted for params Promise pattern and Server/Client component conventions
+
+---
+
+## Session 4 — 2026-03-26
+
+**Prompt technique:** Direct continuation ("continue") + batch execution ("finish both phases 3 and 4")
+
+**Objectives:**
+- Complete Phase 2 (poller registration, materialized views)
+- Phase 3: Dockerfile, nginx.conf, docker-entrypoint.sh for production deployment
+- Phase 4: Analytics module, Prometheus metrics, k6 load tests, article data script, admin dashboard
+
+**Outcomes:**
+- Registered PollerModule in app.module.ts imports array
+- Created mv_standings and mv_top_scorers materialized views in schema.sql with unique indexes for CONCURRENT refresh
+- Updated LeagueService to query from materialized views instead of inline aggregation
+- Created multi-stage Dockerfile (Node 22 Alpine → build TS → prod image with Nginx + Node)
+- Created nginx.conf: reverse proxy, gzip, security headers, rate limiting zones (api: 30r/s, auth: 5r/m), SSE route with proxy_buffering off
+- Created docker-entrypoint.sh and .dockerignore
+- Created AnalyticsModule: TrackingMiddleware (logs requests to analytics_events, respects X-Test-Country for k6), AnalyticsService (overview, geography, engagement, features queries), AnalyticsController (admin-only endpoints behind JwtAuthGuard + AdminGuard)
+- Created IncidentController: POST /admin/incidents webhook for Grafana alerts (creates/resolves incidents)
+- Created SnapshotService: @Cron daily at 3 AM, aggregates analytics_events into daily_snapshots with ON CONFLICT upsert
+- Created MetricsModule (global): prom-client registry with histograms (http_request_duration, poller_cycle_duration), counters (http_requests_total, cache hits/misses, kafka produced/consumed), gauges (active_sse_connections, kafka_consumer_lag)
+- Created PrometheusInterceptor: records request duration and count per route/method/status
+- Created /metrics endpoint returning Prometheus text format
+- Registered AnalyticsModule + MetricsModule in app.module.ts, applied TrackingMiddleware globally
+- Created 4 k6 scenarios: casual-viewer (60%), explorer (25%), searcher (10%), power-user (5%)
+- Created spike-test.js (500→2000→500 burst pattern)
+- Created k6/helpers/geo.js for weighted country distribution
+- Created k6/post-test.ts: parses k6 JSON summary, inserts into load_test_runs, determines pass/fail against thresholds
+- Created scripts/generate-article-data.ts: queries all tables, produces structured markdown with 8 sections
+- Created admin analytics dashboard page (/admin/analytics) with tabs: Engagement, Geography, Features, Incidents, Load Tests
+- Added admin API functions to client lib/api.ts
+- Added Grafana/Prometheus env vars to env.validation.ts
+- Installed @nestjs/schedule and prom-client packages
+- Both server and client builds pass clean
+
+**Decisions made:**
+- Nginx runs inside the same Docker container as NestJS (multi-process via entrypoint script)
+- TrackingMiddleware fires and forgets (doesn't block requests)
+- Prometheus interceptor registered globally via app.get() for DI-aware instantiation
+- k6 scenarios use weighted VU distribution matching plan (60/25/10/5 split)
+- Admin dashboard is a single page with tabs (not separate routes) for simplicity
+- MetricsModule is @Global() so MetricsService can be injected anywhere for custom metrics
+
+**AI tool configuration:**
+- Claude Code (CLI) with batch execution across two phases
+- Parallel task creation and sequential execution
+- Both builds verified after all changes
