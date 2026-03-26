@@ -83,6 +83,22 @@ class EnvironmentVariables {
   @IsString()
   @IsOptional()
   CLIENT_URL: string = 'http://localhost:3001';
+
+  @IsString()
+  @IsOptional()
+  PROMETHEUS_REMOTE_WRITE_URL: string;
+
+  @IsString()
+  @IsOptional()
+  GRAFANA_PROMETHEUS_USERNAME: string;
+
+  @IsString()
+  @IsOptional()
+  GRAFANA_API_KEY: string;
+
+  @IsString()
+  @IsOptional()
+  GRAFANA_CLOUD_URL: string;
 }
 
 export function validate(config: Record<string, unknown>) {

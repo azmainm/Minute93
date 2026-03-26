@@ -13,6 +13,10 @@ import { SearchModule } from './search/search.module.js';
 import { LeagueModule } from './league/league.module.js';
 import { RedisModule } from './redis/redis.module.js';
 import { KafkaModule } from './kafka/kafka.module.js';
+import { PollerModule } from './poller/poller.module.js';
+import { AnalyticsModule } from './analytics/analytics.module.js';
+import { TrackingMiddleware } from './analytics/tracking.middleware.js';
+import { MetricsModule } from './metrics/metrics.module.js';
 
 @Module({
   imports: [
@@ -33,11 +37,15 @@ import { KafkaModule } from './kafka/kafka.module.js';
     PlayerModule,
     SearchModule,
     LeagueModule,
+    PollerModule,
+    AnalyticsModule,
+    MetricsModule,
   ],
   controllers: [AppController],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(CorrelationIdMiddleware).forRoutes('*');
+    consumer.apply(TrackingMiddleware).forRoutes('*');
   }
 }
