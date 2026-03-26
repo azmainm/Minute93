@@ -46,12 +46,13 @@ export default function StandingsPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <PageHeader
-          icon={Trophy}
-          title="Standings"
-          subtitle="League table updated automatically after every match. Points, goal difference, and form at a glance."
-        />
+      <PageHeader
+        icon={Trophy}
+        title="Standings"
+        subtitle="League table updated automatically after every match. Points, goal difference, and form at a glance."
+      />
+
+      <div className="mb-6 flex justify-end">
         <SeasonSelector value={season} onChange={setSeason} />
       </div>
 

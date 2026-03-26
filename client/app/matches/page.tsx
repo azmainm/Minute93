@@ -12,16 +12,18 @@ import { SeasonSelector } from "@/components/shared/season-selector";
 import { getLiveMatches, getMatches } from "@/lib/api";
 import type { Match, PaginatedData } from "@/lib/types";
 
-type TabValue = "live" | "results" | "schedule";
+type TabValue = "live" | "results" | "upcoming";
 
 export default function MatchesPage() {
   const [tab, setTab] = useState<TabValue>("live");
   const [liveMatches, setLiveMatches] = useState<Match[]>([]);
   const [results, setResults] = useState<PaginatedData<Match> | null>(null);
-  const [schedule, setSchedule] = useState<PaginatedData<Match> | null>(null);
+  const [upcoming, setUpcoming] = useState<PaginatedData<Match> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [season, setSeason] = useState("2025");
+
+  const showSeasonSelector = tab === "results";
 
   const fetchData = useCallback(async (activeTab: TabValue, selectedSeason: string) => {
     setLoading(true);
@@ -34,8 +36,8 @@ export default function MatchesPage() {
         const data = await getMatches({ status: "finished", limit: "20", season: selectedSeason, sort: "kickoff_at", order: "DESC" });
         setResults(data);
       } else {
-        const data = await getMatches({ status: "scheduled", limit: "20", season: selectedSeason, sort: "kickoff_at", order: "ASC" });
-        setSchedule(data);
+        const data = await getMatches({ status: "scheduled", limit: "20", sort: "kickoff_at", order: "ASC" });
+        setUpcoming(data);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load matches");
@@ -75,30 +77,32 @@ export default function MatchesPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <PageHeader
-          icon={CalendarDays}
-          title="Matches"
-          subtitle="Live scores, recent results, and upcoming fixtures across all competitions."
-        />
-        <SeasonSelector value={season} onChange={setSeason} />
-      </div>
+      <PageHeader
+        icon={CalendarDays}
+        title="Matches"
+        subtitle="Live scores, recent results, and upcoming fixtures across all competitions."
+      />
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as TabValue)}>
-        <TabsList className="mb-6 w-full sm:w-auto">
-          <TabsTrigger value="live" className="gap-1.5">
-            <Radio className="size-3.5" />
-            Live
-          </TabsTrigger>
-          <TabsTrigger value="results" className="gap-1.5">
-            <Trophy className="size-3.5" />
-            Results
-          </TabsTrigger>
-          <TabsTrigger value="schedule" className="gap-1.5">
-            <Clock className="size-3.5" />
-            Schedule
-          </TabsTrigger>
-        </TabsList>
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="live" className="gap-1.5">
+              <Radio className="size-3.5" />
+              Live
+            </TabsTrigger>
+            <TabsTrigger value="results" className="gap-1.5">
+              <Trophy className="size-3.5" />
+              Results
+            </TabsTrigger>
+            <TabsTrigger value="upcoming" className="gap-1.5">
+              <Clock className="size-3.5" />
+              Upcoming
+            </TabsTrigger>
+          </TabsList>
+          {showSeasonSelector && (
+            <SeasonSelector value={season} onChange={setSeason} />
+          )}
+        </div>
 
         <TabsContent value="live">
           {renderMatches(
@@ -118,9 +122,9 @@ export default function MatchesPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="schedule">
+        <TabsContent value="upcoming">
           {renderMatches(
-            schedule?.items || [],
+            upcoming?.items || [],
             Clock,
             "No upcoming matches",
             "The schedule will populate once fixtures are available."

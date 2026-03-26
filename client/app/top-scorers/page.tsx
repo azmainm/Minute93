@@ -38,12 +38,13 @@ export default function TopScorersPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <PageHeader
-          icon={Zap}
-          title="Top Scorers"
-          subtitle="Tournament goal rankings, auto-updated after every match event is processed."
-        />
+      <PageHeader
+        icon={Zap}
+        title="Top Scorers"
+        subtitle="Tournament goal rankings, auto-updated after every match event is processed."
+      />
+
+      <div className="mb-6 flex justify-end">
         <SeasonSelector value={season} onChange={setSeason} />
       </div>
 
