@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { CalendarDays, Radio, Trophy, Clock, Loader2 } from "lucide-react";
+import { CalendarDays, Radio, Trophy, Clock } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { MatchCard } from "@/components/shared/match-card";
 import { MatchCardSkeleton } from "@/components/shared/match-card-skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorMessage } from "@/components/shared/error-message";
-import { getLiveMatches, getMatchResults, getScheduledMatches } from "@/lib/api";
+import { SeasonSelector } from "@/components/shared/season-selector";
+import { getLiveMatches, getMatches } from "@/lib/api";
 import type { Match, PaginatedData } from "@/lib/types";
 
 type TabValue = "live" | "results" | "schedule";
@@ -20,8 +21,9 @@ export default function MatchesPage() {
   const [schedule, setSchedule] = useState<PaginatedData<Match> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [season, setSeason] = useState("2025");
 
-  const fetchData = useCallback(async (activeTab: TabValue) => {
+  const fetchData = useCallback(async (activeTab: TabValue, selectedSeason: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -29,10 +31,10 @@ export default function MatchesPage() {
         const data = await getLiveMatches();
         setLiveMatches(data);
       } else if (activeTab === "results") {
-        const data = await getMatchResults({ limit: "20" });
+        const data = await getMatches({ status: "finished", limit: "20", season: selectedSeason, sort: "kickoff_at", order: "DESC" });
         setResults(data);
       } else {
-        const data = await getScheduledMatches({ limit: "20" });
+        const data = await getMatches({ status: "scheduled", limit: "20", season: selectedSeason, sort: "kickoff_at", order: "ASC" });
         setSchedule(data);
       }
     } catch (err) {
@@ -43,8 +45,8 @@ export default function MatchesPage() {
   }, []);
 
   useEffect(() => {
-    fetchData(tab);
-  }, [tab, fetchData]);
+    fetchData(tab, season);
+  }, [tab, season, fetchData]);
 
   const renderMatches = (matches: Match[], emptyIcon: typeof Radio, emptyTitle: string, emptyDesc: string) => {
     if (loading) {
@@ -57,7 +59,7 @@ export default function MatchesPage() {
       );
     }
     if (error) {
-      return <ErrorMessage message={error} onRetry={() => fetchData(tab)} />;
+      return <ErrorMessage message={error} onRetry={() => fetchData(tab, season)} />;
     }
     if (matches.length === 0) {
       return <EmptyState icon={emptyIcon} title={emptyTitle} description={emptyDesc} />;
@@ -73,11 +75,14 @@ export default function MatchesPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <PageHeader
-        icon={CalendarDays}
-        title="Matches"
-        subtitle="Live scores, recent results, and upcoming fixtures across all competitions."
-      />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <PageHeader
+          icon={CalendarDays}
+          title="Matches"
+          subtitle="Live scores, recent results, and upcoming fixtures across all competitions."
+        />
+        <SeasonSelector value={season} onChange={setSeason} />
+      </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as TabValue)}>
         <TabsList className="mb-6 w-full sm:w-auto">

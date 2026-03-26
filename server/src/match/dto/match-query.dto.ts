@@ -17,4 +17,8 @@ export class MatchQueryDto extends PaginationDto {
   @IsString()
   @IsOptional()
   round?: string;
+
+  @IsInt()
+  @IsOptional()
+  season?: number;
 }

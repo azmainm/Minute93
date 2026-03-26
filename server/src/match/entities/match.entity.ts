@@ -46,6 +46,9 @@ export class Match {
   @Column({ type: 'varchar', length: 20, default: 'scheduled' })
   status: string;
 
+  @Column({ type: 'integer', default: 2025 })
+  season: number;
+
   @Column({ type: 'varchar', length: 30, nullable: true })
   round: string | null;
 

@@ -64,6 +64,7 @@ CREATE TABLE matches (
   home_score      SMALLINT,
   away_score      SMALLINT,
   status          VARCHAR(20) NOT NULL DEFAULT 'scheduled',
+  season          INTEGER NOT NULL DEFAULT 2025,
   round           VARCHAR(30),
   kickoff_at      TIMESTAMPTZ NOT NULL,
   venue           VARCHAR(100),
@@ -174,6 +175,75 @@ CREATE TABLE incidents (
   manual_notes          TEXT
 );
 
+-- Materialized Views
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS mv_standings AS
+SELECT
+  t.id,
+  t.name,
+  t.code,
+  t.logo_url,
+  t.league_id,
+  t.group_name,
+  m.season,
+  COUNT(m.id) AS played,
+  COUNT(CASE WHEN
+    (m.home_team_id = t.id AND m.home_score > m.away_score) OR
+    (m.away_team_id = t.id AND m.away_score > m.home_score)
+  THEN 1 END) AS wins,
+  COUNT(CASE WHEN m.home_score = m.away_score THEN 1 END) AS draws,
+  COUNT(CASE WHEN
+    (m.home_team_id = t.id AND m.home_score < m.away_score) OR
+    (m.away_team_id = t.id AND m.away_score < m.home_score)
+  THEN 1 END) AS losses,
+  COALESCE(SUM(CASE WHEN m.home_team_id = t.id THEN m.home_score
+                      WHEN m.away_team_id = t.id THEN m.away_score END), 0) AS goals_for,
+  COALESCE(SUM(CASE WHEN m.home_team_id = t.id THEN m.away_score
+                      WHEN m.away_team_id = t.id THEN m.home_score END), 0) AS goals_against,
+  COALESCE(SUM(CASE WHEN m.home_team_id = t.id THEN m.home_score
+                      WHEN m.away_team_id = t.id THEN m.away_score END), 0) -
+  COALESCE(SUM(CASE WHEN m.home_team_id = t.id THEN m.away_score
+                      WHEN m.away_team_id = t.id THEN m.home_score END), 0) AS goal_difference,
+  (COUNT(CASE WHEN
+    (m.home_team_id = t.id AND m.home_score > m.away_score) OR
+    (m.away_team_id = t.id AND m.away_score > m.home_score)
+  THEN 1 END) * 3 +
+  COUNT(CASE WHEN m.home_score = m.away_score THEN 1 END)) AS points
+FROM teams t
+INNER JOIN matches m ON (m.home_team_id = t.id OR m.away_team_id = t.id)
+  AND m.status = 'finished'
+GROUP BY t.id, t.name, t.code, t.logo_url, t.league_id, t.group_name, m.season;
+
+-- Required for REFRESH MATERIALIZED VIEW CONCURRENTLY
+CREATE UNIQUE INDEX IF NOT EXISTS idx_mv_standings_team_season ON mv_standings(id, season);
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS mv_top_scorers AS
+SELECT
+  me.player_name AS name,
+  t.id AS team_id,
+  t.name AS team_name,
+  t.logo_url AS team_logo,
+  m.season,
+  COUNT(*) AS goals
+FROM match_events me
+LEFT JOIN teams t ON me.team_id = t.id
+LEFT JOIN matches m ON me.match_id = m.id
+WHERE me.event_type = 'goal'
+GROUP BY me.player_name, t.id, t.name, t.logo_url, m.season;
+
+-- Required for REFRESH MATERIALIZED VIEW CONCURRENTLY
+CREATE UNIQUE INDEX IF NOT EXISTS idx_mv_top_scorers_player_team_season ON mv_top_scorers(name, team_id, season);
+
+-- Seed admin account
+INSERT INTO users (email, password_hash, name, auth_provider, is_admin)
+VALUES (
+  'admin@minute93.com',
+  '$2b$10$EabGI.LcP7fXxJ9WBtF6y.LFYaFwt8MsA.lz3Yw8M4HY7y6tRJ8rG',
+  'admin',
+  'credentials',
+  true
+) ON CONFLICT (email) DO NOTHING;
+
 -- Indexes
 CREATE INDEX idx_players_name_trgm ON players USING GIN (name gin_trgm_ops);
 CREATE INDEX idx_teams_name_trgm ON teams USING GIN (name gin_trgm_ops);
@@ -181,6 +251,7 @@ CREATE INDEX idx_match_events_match ON match_events(match_id);
 CREATE INDEX idx_matches_status ON matches(status);
 CREATE INDEX idx_matches_kickoff ON matches(kickoff_at);
 CREATE INDEX idx_matches_league ON matches(league_id);
+CREATE INDEX idx_matches_season ON matches(season);
 CREATE INDEX idx_lineups_match ON match_lineups(match_id);
 CREATE INDEX idx_analytics_type_date ON analytics_events(event_type, created_at);
 CREATE INDEX idx_analytics_user ON analytics_events(user_id);

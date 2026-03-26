@@ -15,7 +15,7 @@ import pg from 'pg';
 const API_KEY = process.env.API_FOOTBALL_KEY;
 const API_BASE = process.env.API_FOOTBALL_BASE_URL || 'https://v3.football.api-sports.io';
 const ACTIVE_LEAGUES = (process.env.ACTIVE_LEAGUES || '2').split(',').map(Number);
-const SEASON = 2025;
+const SEASON = Number(process.env.SEED_SEASON || '2025');
 
 const DATABASE_URL =
   process.env.DATABASE_URL ||
@@ -199,13 +199,13 @@ async function seedFixtures() {
       const status = statusMap[f.fixture.status.short] || 'scheduled';
 
       await pool.query(
-        `INSERT INTO matches (api_football_id, league_id, home_team_id, away_team_id, home_score, away_score, status, round, kickoff_at, venue)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        `INSERT INTO matches (api_football_id, league_id, home_team_id, away_team_id, home_score, away_score, status, season, round, kickoff_at, venue)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
          ON CONFLICT (api_football_id) DO UPDATE SET
-           home_score = $5, away_score = $6, status = $7, round = $8, kickoff_at = $9, venue = $10, updated_at = NOW()`,
+           home_score = $5, away_score = $6, status = $7, season = $8, round = $9, kickoff_at = $10, venue = $11, updated_at = NOW()`,
         [
           f.fixture.id, dbLeagueId, homeTeamId, awayTeamId,
-          f.goals.home, f.goals.away, status,
+          f.goals.home, f.goals.away, status, SEASON,
           f.league.round, f.fixture.date, f.fixture.venue?.name || null,
         ],
       );

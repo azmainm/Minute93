@@ -21,7 +21,7 @@ export class MatchService {
   ) {}
 
   async findAll(query: MatchQueryDto): Promise<PaginatedData<Match>> {
-    const { page, limit, sort, order, status, league_id, date, round } = query;
+    const { page, limit, sort, order, status, league_id, date, round, season } = query;
     const skip = (page - 1) * limit;
 
     const qb = this.matchRepository
@@ -41,6 +41,9 @@ export class MatchService {
     }
     if (round) {
       qb.andWhere('match.round = :round', { round });
+    }
+    if (season) {
+      qb.andWhere('match.season = :season', { season });
     }
 
     const sortColumn = sort || 'kickoff_at';

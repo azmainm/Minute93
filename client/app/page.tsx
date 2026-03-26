@@ -55,8 +55,8 @@ export default function HomePage() {
         <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8 lg:py-36">
           <div className="mx-auto max-w-2xl text-center">
             <Badge variant="outline" className="mb-6 border-primary/30 bg-primary/5 px-3 py-1 text-primary">
-              <Zap className="mr-1.5 size-3" />
-              Champions League 2025-26
+              <BarChart3 className="mr-1.5 size-3" />
+              Distributed Systems Portfolio Project
             </Badge>
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
               Every moment.{" "}

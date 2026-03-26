@@ -18,63 +18,29 @@ export class LeagueService {
     });
   }
 
-  async getStandings(leagueId?: number): Promise<unknown[]> {
+  async getStandings(leagueId?: number, season?: number): Promise<unknown[]> {
     const query = `
-      SELECT
-        t.id,
-        t.name,
-        t.code,
-        t.logo_url,
-        t.group_name,
-        COUNT(CASE WHEN
-          (m.home_team_id = t.id AND m.home_score > m.away_score) OR
-          (m.away_team_id = t.id AND m.away_score > m.home_score)
-        THEN 1 END) AS wins,
-        COUNT(CASE WHEN m.home_score = m.away_score THEN 1 END) AS draws,
-        COUNT(CASE WHEN
-          (m.home_team_id = t.id AND m.home_score < m.away_score) OR
-          (m.away_team_id = t.id AND m.away_score < m.home_score)
-        THEN 1 END) AS losses,
-        COALESCE(SUM(CASE WHEN m.home_team_id = t.id THEN m.home_score
-                            WHEN m.away_team_id = t.id THEN m.away_score END), 0) AS goals_for,
-        COALESCE(SUM(CASE WHEN m.home_team_id = t.id THEN m.away_score
-                            WHEN m.away_team_id = t.id THEN m.home_score END), 0) AS goals_against,
-        COUNT(m.id) AS played,
-        (COUNT(CASE WHEN
-          (m.home_team_id = t.id AND m.home_score > m.away_score) OR
-          (m.away_team_id = t.id AND m.away_score > m.home_score)
-        THEN 1 END) * 3 +
-        COUNT(CASE WHEN m.home_score = m.away_score THEN 1 END)) AS points
-      FROM teams t
-      LEFT JOIN matches m ON (m.home_team_id = t.id OR m.away_team_id = t.id)
-        AND m.status = 'finished'
-      WHERE ($1::int IS NULL OR t.league_id = $1)
-      GROUP BY t.id, t.name, t.code, t.logo_url, t.group_name
-      ORDER BY t.group_name ASC NULLS LAST, points DESC,
-        (COALESCE(SUM(CASE WHEN m.home_team_id = t.id THEN m.home_score
-                            WHEN m.away_team_id = t.id THEN m.away_score END), 0) -
-         COALESCE(SUM(CASE WHEN m.home_team_id = t.id THEN m.away_score
-                            WHEN m.away_team_id = t.id THEN m.home_score END), 0)) DESC
+      SELECT id, name, code, logo_url, group_name, season,
+             played, wins, draws, losses,
+             goals_for, goals_against, goal_difference, points
+      FROM mv_standings
+      WHERE ($1::int IS NULL OR league_id = $1)
+        AND ($2::int IS NULL OR season = $2)
+      ORDER BY group_name ASC NULLS LAST, points DESC, goal_difference DESC
     `;
 
-    return this.dataSource.query(query, [leagueId || null]);
+    return this.dataSource.query(query, [leagueId || null, season || null]);
   }
 
-  async getTopScorers(limit: number = 20): Promise<unknown[]> {
+  async getTopScorers(limit: number = 20, season?: number): Promise<unknown[]> {
     const query = `
-      SELECT
-        me.player_name AS name,
-        t.name AS team_name,
-        t.logo_url AS team_logo,
-        COUNT(*) AS goals
-      FROM match_events me
-      LEFT JOIN teams t ON me.team_id = t.id
-      WHERE me.event_type = 'goal'
-      GROUP BY me.player_name, t.name, t.logo_url
+      SELECT name, team_name, team_logo, goals, season
+      FROM mv_top_scorers
+      WHERE ($1::int IS NULL OR season = $1)
       ORDER BY goals DESC
-      LIMIT $1
+      LIMIT $2
     `;
 
-    return this.dataSource.query(query, [limit]);
+    return this.dataSource.query(query, [season || null, limit]);
   }
 }
