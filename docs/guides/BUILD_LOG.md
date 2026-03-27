@@ -178,18 +178,18 @@ API-Football → Poller (cron) → Redis dedup check → Kafka [match.events]
 ### Seeded Data (as of build)
 | Season | Teams | Matches | Players |
 |--------|-------|---------|---------|
-| UCL 2024-25 | 81 | 279 | ~554 (partial) |
-| UCL 2023-24 | 78 | 214 | ~2239 (combined) |
+| UCL 2024-25 | 81 | 279 | ✓ |
+| UCL 2023-24 | 78 | 214 | ✓ |
+| UCL 2022-23 | 78 | 214 | ✓ |
 
-**Note:** 73/121 teams have full player data. API-Football free tier = 100 req/day, 10 req/min. Remaining players can be filled by re-running the seed script on subsequent days.
+**Totals:** 145 teams, 707 matches, 2,934 players across 3 seasons. 96/145 teams have full squad data — remaining teams can be filled by re-running the seed script when the daily API limit resets.
 
 ### To Seed More Data
 ```bash
 cd server
-SEED_SEASON=2022 npx tsx scripts/seed.ts   # UCL 2022-23
-npx tsx scripts/seed.ts                      # Re-run to fill missing 2024 players
+npx tsx scripts/seed.ts                      # Re-run to fill missing players (uses upsert)
+SEED_SEASON=2025 npx tsx scripts/seed.ts     # Seed a new season (requires API-Football Pro for 2025+)
 ```
-Then add `{ value: "2022", label: "2022-23" }` to `client/components/shared/season-selector.tsx`.
 
 ---
 
@@ -253,7 +253,7 @@ Then add `{ value: "2022", label: "2022-23" }` to `client/components/shared/seas
 | Kafka | Redpanda Cloud | SASL/SSL auth |
 | Monitoring | Grafana Cloud | Prometheus scrape |
 
-Full deployment instructions: `.claude/docs/production-setup.md`
+Full deployment instructions: `docs/guides/DEPLOYMENT.md`
 
 ---
 
