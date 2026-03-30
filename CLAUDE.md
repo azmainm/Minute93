@@ -26,7 +26,6 @@ client/              → Next.js frontend (App Router, shadcn/ui)
 server/              → NestJS backend API
 server/src/          → NestJS source (modules: auth, match, search, analytics, kafka, redis)
 docs/                → Project plan (InitialPlan.md) and engineering standards (EngineeringStandards.md)
-docs/prompts/        → Prompt templates used for AI-assisted development
 ```
 
 ## Build & Test Commands
@@ -100,5 +99,6 @@ When deploying or configuring env vars on Render, refer to `.claude/docs/product
 ## Update Discipline
 
 - Update this file whenever significant changes are made to codebase structure, tooling, or conventions.
+- **Update `README.md`** whenever files, directories, or documentation are added, removed, or renamed. The root README must stay aligned with the actual codebase structure.
 - Update `.claude/docs/ai-development-log.md` at the start and end of every Claude Code session.
 - Read `docs/EngineeringStandards.md` before writing any code.

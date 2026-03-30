@@ -1,0 +1,5 @@
+# OS
+.DS_Store
+
+# Prompt templates (private, not for public repo)
+docs/prompts/
