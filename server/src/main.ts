@@ -18,8 +18,17 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new ResponseInterceptor(), prometheusInterceptor);
 
+  const clientUrl = configService.get<string>('CLIENT_URL') || 'http://localhost:3001';
+  const corsOrigins = [clientUrl];
+  // Accept both www and non-www variants
+  if (clientUrl.includes('://www.')) {
+    corsOrigins.push(clientUrl.replace('://www.', '://'));
+  } else if (clientUrl.includes('://') && !clientUrl.includes('localhost')) {
+    corsOrigins.push(clientUrl.replace('://', '://www.'));
+  }
+
   app.enableCors({
-    origin: configService.get<string>('CLIENT_URL'),
+    origin: corsOrigins,
     credentials: true,
   });
 
