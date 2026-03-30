@@ -43,7 +43,7 @@ export default function TopScorersPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
       <PageHeader
-        icon={Zap}
+        showLogo
         title="Top Scorers"
         subtitle="Goal rankings across all competitions, auto-updated after every match event is processed."
       />

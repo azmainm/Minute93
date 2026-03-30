@@ -21,7 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Building Minute93 — Engineering a Real-Time Football Platform",
+  title: "Building Minute93: Engineering a Real-Time Football Platform",
 };
 
 const tableOfContents = [
@@ -61,7 +61,7 @@ export default function ArticlePage() {
           </h1>
 
           <p className="mt-6 text-lg text-muted-foreground">
-            How I designed and built an event-driven distributed system to deliver live football data — from API polling to browser push in under 500ms.
+            How I designed and built an event-driven distributed system to deliver live football data, from API polling to browser push in under 500ms.
           </p>
 
           <div className="mt-6 flex items-center gap-4 text-sm text-muted-foreground">
@@ -111,11 +111,11 @@ export default function ArticlePage() {
                 Every engineering portfolio needs a project that goes beyond CRUD. Something that deals with real-time data, concurrent consumers, cache invalidation, and the kind of infrastructure decisions that come up in production systems.
               </p>
               <p>
-                I wanted to build something I genuinely cared about — not a todo app, not a Twitter clone — but a system that processes live events, updates multiple data stores in parallel, and pushes changes to users in real time. Football was the perfect domain.
+                I wanted to build something I genuinely cared about. Not a todo app, not a Twitter clone, but a system that processes live events, updates multiple data stores in parallel, and pushes changes to users in real time. Football was the perfect domain.
               </p>
               <Card className="border-primary/20 bg-primary/5">
                 <CardContent className="p-4 text-sm italic">
-                  &ldquo;The best portfolio project is one where the requirements are genuinely complex — not artificially complicated.&rdquo;
+                  &ldquo;The best portfolio project is one where the requirements are genuinely complex, not artificially complicated.&rdquo;
                 </CardContent>
               </Card>
             </div>
@@ -148,7 +148,7 @@ export default function ArticlePage() {
                 </CardContent>
               </Card>
               <p>
-                Each Kafka consumer is independent — if one fails, the others continue processing. This gives us resilience without complexity. The poller writes to Kafka, and everything downstream is eventually consistent.
+                Each Kafka consumer is independent. If one fails, the others continue processing. This gives us resilience without complexity. The poller writes to Kafka, and everything downstream is eventually consistent.
               </p>
             </div>
           </section>
@@ -169,9 +169,9 @@ export default function ArticlePage() {
               <div className="grid gap-3 sm:grid-cols-2">
                 {[
                   { icon: Database, title: "Deduplication", desc: "Redis SADD ensures each event is processed exactly once, even if the poller fetches overlapping data." },
-                  { icon: Radio, title: "Fan-out", desc: "Kafka distributes each event to 4 consumer groups simultaneously — no bottleneck, no coupling." },
+                  { icon: Radio, title: "Fan-out", desc: "Kafka distributes each event to 4 consumer groups simultaneously. No bottleneck, no coupling." },
                   { icon: Shield, title: "Rate Limiting", desc: "The poller respects API-Football's rate limits with token bucket + Redis counters." },
-                  { icon: Timer, title: "Backpressure", desc: "If consumers lag, Kafka retains events. Nothing is lost — processing just catches up." },
+                  { icon: Timer, title: "Backpressure", desc: "If consumers lag, Kafka retains events. Nothing is lost. Processing just catches up." },
                 ].map(({ icon: Icon, title, desc }) => (
                   <Card key={title}>
                     <CardContent className="p-4">
@@ -202,10 +202,10 @@ export default function ArticlePage() {
               </p>
               <ul className="space-y-2 pl-4">
                 {[
-                  "Unidirectional — the server pushes, the client listens. Perfect for live scores.",
-                  "Auto-reconnects — built into the EventSource API, no library needed.",
-                  "No protocol upgrade — works over standard HTTP, friendly to proxies and load balancers.",
-                  "Simpler to debug — it's just a long-lived HTTP response with text/event-stream content type.",
+                  "Unidirectional: the server pushes, the client listens. Perfect for live scores.",
+                  "Auto-reconnects: built into the EventSource API, no library needed.",
+                  "No protocol upgrade: works over standard HTTP, friendly to proxies and load balancers.",
+                  "Simpler to debug: it's just a long-lived HTTP response with text/event-stream content type.",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-sm">
                     <div className="mt-1.5 size-1.5 flex-shrink-0 rounded-full bg-primary" />
@@ -233,7 +233,7 @@ export default function ArticlePage() {
                 The data layer uses PostgreSQL for durable storage and Redis for hot reads. Standings and top scorer rankings are computed as materialized views, refreshed concurrently after each batch of events.
               </p>
               <p>
-                Search is powered by PostgreSQL&apos;s pg_trgm extension — trigram-based fuzzy matching that tolerates misspellings without needing Elasticsearch. A GIN index on player and team names keeps it fast.
+                Search is powered by PostgreSQL&apos;s pg_trgm extension, trigram-based fuzzy matching that tolerates misspellings without needing Elasticsearch. A GIN index on player and team names keeps it fast.
               </p>
               <Card className="border-primary/20 bg-primary/5">
                 <CardContent className="p-4 text-sm italic">

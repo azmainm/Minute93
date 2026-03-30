@@ -86,7 +86,7 @@ export default function MatchesPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <PageHeader
-        icon={CalendarDays}
+        showLogo
         title="Matches"
         subtitle="Live scores, recent results, and upcoming fixtures across all competitions."
       />

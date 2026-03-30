@@ -51,7 +51,7 @@ export default function StandingsPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
       <PageHeader
-        icon={Trophy}
+        showLogo
         title="Standings"
         subtitle="League tables updated automatically after every match. Select a competition and season to view standings."
       />

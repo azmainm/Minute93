@@ -40,7 +40,7 @@ export default function TeamsPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <PageHeader
-        icon={Users}
+        showLogo
         title="Teams"
         subtitle="Browse teams across all competitions. Tap a team to see their squad, recent form, and fixtures."
       />

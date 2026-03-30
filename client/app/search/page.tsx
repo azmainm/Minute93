@@ -44,9 +44,9 @@ export default function SearchPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
       <PageHeader
-        icon={SearchIcon}
+        showLogo
         title="Search"
-        subtitle="Find any player or team instantly. Fuzzy matching tolerates misspellings — powered by PostgreSQL trigram search."
+        subtitle="Find any player or team instantly. Fuzzy matching tolerates misspellings, powered by PostgreSQL trigram search."
       />
 
       {/* Search Input */}

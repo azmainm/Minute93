@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ExternalLink, GitFork } from "lucide-react";
+import { GitFork } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const footerLinks = [
@@ -36,7 +36,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-              Real-time football intelligence. Live scores, stats, standings, and search — built for the beautiful game.
+              Real-time football intelligence. Live scores, stats, standings, and search. Built for the beautiful game.
             </p>
           </div>
 
@@ -77,15 +77,6 @@ export function Footer() {
               aria-label="GitHub"
             >
               <GitFork className="size-4" />
-            </a>
-            <a
-              href="https://minute93.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground transition-colors hover:text-primary"
-              aria-label="Website"
-            >
-              <ExternalLink className="size-4" />
             </a>
           </div>
         </div>

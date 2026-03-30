@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   Zap,
@@ -55,6 +56,14 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
         <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8 lg:py-36">
           <div className="mx-auto max-w-2xl text-center">
+            <Image
+              src="/logo.png"
+              alt="Minute93"
+              width={64}
+              height={64}
+              className="mx-auto mb-6 rounded-xl"
+              priority
+            />
             <Badge variant="outline" className="mb-6 border-primary/30 bg-primary/5 px-3 py-1 text-primary">
               <BarChart3 className="mr-1.5 size-3" />
               Distributed Systems Portfolio Project
@@ -67,7 +76,7 @@ export default function HomePage() {
               In real time.
             </h1>
             <p className="mt-6 text-lg text-muted-foreground sm:text-xl">
-              Live scores, historical stats, league standings, and instant search — a real-time football intelligence platform built for the beautiful game.
+              Live scores, historical stats, league standings, and instant search. A real-time football intelligence platform built for the beautiful game.
             </p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link href="/matches">
@@ -76,10 +85,10 @@ export default function HomePage() {
                   View Live Matches
                 </Button>
               </Link>
-              <Link href="/standings">
+              <Link href="/article">
                 <Button variant="outline" size="lg" className="w-full gap-2 sm:w-auto">
-                  <Trophy className="size-4" />
-                  Standings
+                  <BookOpen className="size-4" />
+                  Read the Article
                 </Button>
               </Link>
             </div>
@@ -94,7 +103,7 @@ export default function HomePage() {
             Built for speed, designed for clarity
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Everything you need to follow football — from live events to deep stats — in one fast, clean interface.
+            Everything you need to follow football, from live events to deep stats, in one fast, clean interface.
           </p>
         </div>
 
@@ -133,7 +142,7 @@ export default function HomePage() {
                 Distributed systems, real results
               </h2>
               <p className="mt-4 text-muted-foreground">
-                Minute93 is more than a sports app — it&apos;s a distributed systems portfolio piece demonstrating event-driven architecture at scale.
+                Minute93 is more than a sports app. It&apos;s a distributed systems portfolio piece demonstrating event-driven architecture at scale.
               </p>
               <ul className="mt-6 space-y-3">
                 {[

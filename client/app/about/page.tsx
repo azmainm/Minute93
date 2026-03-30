@@ -36,13 +36,13 @@ const architectureHighlights = [
     icon: Radio,
     title: "Event-Driven Pipeline",
     description:
-      "A Kafka-powered pipeline with 4 independent consumers — cache updater, Postgres writer, stats aggregator, and SSE publisher — each processing match events in parallel.",
+      "A Kafka-powered pipeline with 4 independent consumers (cache updater, Postgres writer, stats aggregator, and SSE publisher) each processing match events in parallel.",
   },
   {
     icon: Database,
     title: "4 Redis Patterns",
     description:
-      "Cache-aside for hot reads, Pub/Sub for real-time push, rate limiting per IP/user, and Set-based deduplication — all in one Redis instance.",
+      "Cache-aside for hot reads, Pub/Sub for real-time push, rate limiting per IP/user, and Set-based deduplication, all in one Redis instance.",
   },
   {
     icon: Zap,
@@ -90,7 +90,7 @@ export default function AboutPage() {
               <span className="text-primary">Minute93</span>
             </h1>
             <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
-              A real-time football intelligence platform — and a distributed systems portfolio piece built by someone who believes the 93rd minute can change everything.
+              A real-time football intelligence platform and a distributed systems portfolio piece built by someone who believes the 93rd minute can change everything.
             </p>
           </div>
         </div>
@@ -104,13 +104,13 @@ export default function AboutPage() {
             93rd minute. Lisbon. 2014.
           </h2>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            May 24, 2014. The Champions League final. Real Madrid vs Atl&eacute;tico Madrid. Atl&eacute;tico leading 1-0. Stoppage time. The fourth official raises the board — three minutes added.
+            May 24, 2014. The Champions League final. Real Madrid vs Atl&eacute;tico Madrid. Atl&eacute;tico leading 1-0. Stoppage time. The fourth official raises the board. Three minutes added.
           </p>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            In the 93rd minute, Sergio Ramos rises above everyone to meet a corner kick and powers a header into the net. 1-1. Atl&eacute;tico are broken. Real Madrid go on to win 4-1 in extra time, claiming La D&eacute;cima — their 10th European Cup.
+            In the 93rd minute, Sergio Ramos rises above everyone to meet a corner kick and powers a header into the net. 1-1. Atl&eacute;tico are broken. Real Madrid go on to win 4-1 in extra time, claiming La D&eacute;cima, their 10th European Cup.
           </p>
           <p className="mt-4 font-medium">
-            That moment — raw, dramatic, decided in the final seconds — is exactly what this platform is built to capture in real time. That&apos;s why it&apos;s called Minute93.
+            That moment, raw, dramatic, decided in the final seconds, is exactly what this platform is built to capture in real time.
           </p>
         </div>
       </section>
@@ -125,13 +125,13 @@ export default function AboutPage() {
             Built by a football enthusiast
           </h2>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            I&apos;m Azmain — a software engineer and lifelong Real Madrid fan. Minute93 is my portfolio project: a way to demonstrate what I can build as a software architect and engineer, wrapped in something I genuinely care about.
+            I&apos;m Azmain, a software engineer and lifelong Real Madrid fan. Minute93 is a full-stack distributed systems project wrapped in something I genuinely care about.
           </p>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            This isn&apos;t a toy demo. It&apos;s a full distributed system — event-driven architecture, real-time data pipelines, production-grade infrastructure — designed to handle live football data across the Champions League, Premier League, and La Liga.
+            This isn&apos;t a toy demo. It&apos;s a full distributed system with event-driven architecture, real-time data pipelines, and production-grade infrastructure, designed to handle live football data across the Champions League, Premier League, and La Liga.
           </p>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            The goal: build something real, deploy it to production, stress-test it with live data, and write about the engineering decisions honestly — what worked, what didn&apos;t, and why.
+            The goal: build something real, deploy it to production, stress-test it with live data, and write about the engineering decisions honestly. What worked, what didn&apos;t, and why.
           </p>
         </div>
       </section>

@@ -14,11 +14,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Minute93 — Real-Time Football Intelligence",
+    default: "Minute93 | Real-Time Football Intelligence",
     template: "%s | Minute93",
   },
   description:
-    "Live scores, historical stats, league standings, and player search — built for the beautiful game.",
+    "Live scores, historical stats, league standings, and player search. Built for the beautiful game.",
   icons: {
     icon: "/favicon.ico",
   },
