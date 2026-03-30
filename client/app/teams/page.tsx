@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorMessage } from "@/components/shared/error-message";
+import { LeagueSelector } from "@/components/shared/league-selector";
 import { getTeams } from "@/lib/api";
 import type { Team } from "@/lib/types";
 
@@ -16,11 +17,16 @@ export default function TeamsPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [leagueId, setLeagueId] = useState("all");
 
   useEffect(() => {
     async function fetchTeams() {
+      setLoading(true);
+      setError(null);
       try {
-        const data = await getTeams();
+        const params: Record<string, string> = {};
+        if (leagueId !== "all") params.league_id = leagueId;
+        const data = await getTeams(params);
         setTeams(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load teams");
@@ -29,15 +35,19 @@ export default function TeamsPage() {
       }
     }
     fetchTeams();
-  }, []);
+  }, [leagueId]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <PageHeader
         icon={Users}
         title="Teams"
-        subtitle="Browse all teams in the competition. Tap a team to see their squad, recent form, and fixtures."
+        subtitle="Browse teams across all competitions. Tap a team to see their squad, recent form, and fixtures."
       />
+
+      <div className="mb-6 flex justify-end">
+        <LeagueSelector value={leagueId} onChange={setLeagueId} />
+      </div>
 
       {loading ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

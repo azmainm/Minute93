@@ -12,6 +12,7 @@ import { ErrorMessage } from "@/components/shared/error-message";
 import { getTopScorers } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { SeasonSelector } from "@/components/shared/season-selector";
+import { LeagueSelector } from "@/components/shared/league-selector";
 import type { TopScorer } from "@/lib/types";
 
 export default function TopScorersPage() {
@@ -19,13 +20,16 @@ export default function TopScorersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [season, setSeason] = useState("2025");
+  const [leagueId, setLeagueId] = useState("all");
 
   useEffect(() => {
     async function fetchScorers() {
       setLoading(true);
       setError(null);
       try {
-        const data = await getTopScorers({ season });
+        const params: Record<string, string> = { season };
+        if (leagueId !== "all") params.league_id = leagueId;
+        const data = await getTopScorers(params);
         setScorers(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load top scorers");
@@ -34,7 +38,7 @@ export default function TopScorersPage() {
       }
     }
     fetchScorers();
-  }, [season]);
+  }, [season, leagueId]);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
@@ -44,7 +48,8 @@ export default function TopScorersPage() {
         subtitle="Tournament goal rankings, auto-updated after every match event is processed."
       />
 
-      <div className="mb-6 flex justify-end">
+      <div className="mb-6 flex flex-wrap items-center justify-end gap-3">
+        <LeagueSelector value={leagueId} onChange={setLeagueId} />
         <SeasonSelector value={season} onChange={setSeason} />
       </div>
 

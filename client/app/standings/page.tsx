@@ -20,6 +20,7 @@ import { ErrorMessage } from "@/components/shared/error-message";
 import { getStandings } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { SeasonSelector } from "@/components/shared/season-selector";
+import { LeagueSelector } from "@/components/shared/league-selector";
 import type { StandingsRow } from "@/lib/types";
 
 export default function StandingsPage() {
@@ -27,13 +28,16 @@ export default function StandingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [season, setSeason] = useState("2025");
+  const [leagueId, setLeagueId] = useState("all");
 
   useEffect(() => {
     async function fetchStandings() {
       setLoading(true);
       setError(null);
       try {
-        const data = await getStandings({ season });
+        const params: Record<string, string> = { season };
+        if (leagueId !== "all") params.league_id = leagueId;
+        const data = await getStandings(params);
         setStandings(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load standings");
@@ -42,7 +46,7 @@ export default function StandingsPage() {
       }
     }
     fetchStandings();
-  }, [season]);
+  }, [season, leagueId]);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
@@ -52,7 +56,8 @@ export default function StandingsPage() {
         subtitle="League table updated automatically after every match. Points, goal difference, and form at a glance."
       />
 
-      <div className="mb-6 flex justify-end">
+      <div className="mb-6 flex flex-wrap items-center justify-end gap-3">
+        <LeagueSelector value={leagueId} onChange={setLeagueId} />
         <SeasonSelector value={season} onChange={setSeason} />
       </div>
 

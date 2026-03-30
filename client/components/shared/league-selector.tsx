@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -7,13 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-const LEAGUES = [
-  { value: "all", label: "All Leagues" },
-  { value: "2", label: "Champions League", logo: "🏆" },
-  { value: "39", label: "Premier League", logo: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
-  { value: "140", label: "La Liga", logo: "🇪🇸" },
-];
+import { getLeagues } from "@/lib/api";
+import type { League } from "@/lib/types";
 
 interface LeagueSelectorProps {
   value: string;
@@ -21,15 +17,24 @@ interface LeagueSelectorProps {
 }
 
 export function LeagueSelector({ value, onChange }: LeagueSelectorProps) {
+  const [leagues, setLeagues] = useState<League[]>([]);
+
+  useEffect(() => {
+    getLeagues()
+      .then(setLeagues)
+      .catch(() => {});
+  }, []);
+
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger className="w-[200px]">
         <SelectValue placeholder="League" />
       </SelectTrigger>
       <SelectContent>
-        {LEAGUES.map((league) => (
-          <SelectItem key={league.value} value={league.value}>
-            {league.label}
+        <SelectItem value="all">All Leagues</SelectItem>
+        {leagues.map((league) => (
+          <SelectItem key={league.id} value={String(league.id)}>
+            {league.name}
           </SelectItem>
         ))}
       </SelectContent>

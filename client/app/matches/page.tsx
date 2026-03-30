@@ -9,6 +9,7 @@ import { MatchCardSkeleton } from "@/components/shared/match-card-skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorMessage } from "@/components/shared/error-message";
 import { SeasonSelector } from "@/components/shared/season-selector";
+import { LeagueSelector } from "@/components/shared/league-selector";
 import { getLiveMatches, getMatches } from "@/lib/api";
 import type { Match, PaginatedData } from "@/lib/types";
 
@@ -22,21 +23,25 @@ export default function MatchesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [season, setSeason] = useState("2025");
+  const [leagueId, setLeagueId] = useState("all");
 
   const showSeasonSelector = tab === "results";
 
-  const fetchData = useCallback(async (activeTab: TabValue, selectedSeason: string) => {
+  const fetchData = useCallback(async (activeTab: TabValue, selectedSeason: string, selectedLeague: string) => {
     setLoading(true);
     setError(null);
     try {
+      const leagueParam = selectedLeague !== "all" ? { league_id: selectedLeague } : {};
       if (activeTab === "live") {
         const data = await getLiveMatches();
-        setLiveMatches(data);
+        setLiveMatches(selectedLeague !== "all"
+          ? data.filter((m) => String(m.league_id) === selectedLeague)
+          : data);
       } else if (activeTab === "results") {
-        const data = await getMatches({ status: "finished", limit: "20", season: selectedSeason, sort: "kickoff_at", order: "DESC" });
+        const data = await getMatches({ status: "finished", limit: "20", season: selectedSeason, sort: "kickoff_at", order: "DESC", ...leagueParam });
         setResults(data);
       } else {
-        const data = await getMatches({ status: "scheduled", limit: "20", sort: "kickoff_at", order: "ASC" });
+        const data = await getMatches({ status: "scheduled", limit: "20", sort: "kickoff_at", order: "ASC", ...leagueParam });
         setUpcoming(data);
       }
     } catch (err) {
@@ -47,8 +52,8 @@ export default function MatchesPage() {
   }, []);
 
   useEffect(() => {
-    fetchData(tab, season);
-  }, [tab, season, fetchData]);
+    fetchData(tab, season, leagueId);
+  }, [tab, season, leagueId, fetchData]);
 
   const renderMatches = (matches: Match[], emptyIcon: typeof Radio, emptyTitle: string, emptyDesc: string) => {
     if (loading) {
@@ -61,7 +66,7 @@ export default function MatchesPage() {
       );
     }
     if (error) {
-      return <ErrorMessage message={error} onRetry={() => fetchData(tab, season)} />;
+      return <ErrorMessage message={error} onRetry={() => fetchData(tab, season, leagueId)} />;
     }
     if (matches.length === 0) {
       return <EmptyState icon={emptyIcon} title={emptyTitle} description={emptyDesc} />;
@@ -99,9 +104,12 @@ export default function MatchesPage() {
               Upcoming
             </TabsTrigger>
           </TabsList>
-          {showSeasonSelector && (
-            <SeasonSelector value={season} onChange={setSeason} />
-          )}
+          <div className="flex flex-wrap items-center gap-3">
+            <LeagueSelector value={leagueId} onChange={setLeagueId} />
+            {showSeasonSelector && (
+              <SeasonSelector value={season} onChange={setSeason} />
+            )}
+          </div>
         </div>
 
         <TabsContent value="live">
