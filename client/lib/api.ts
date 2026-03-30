@@ -95,8 +95,9 @@ export async function getMatchEvents(id: number) {
 
 // ─── Teams ───
 
-export async function getTeams() {
-  return request<import("./types").Team[]>("/teams");
+export async function getTeams(params?: Record<string, string>) {
+  const qs = params ? "?" + new URLSearchParams(params).toString() : "";
+  return request<import("./types").Team[]>(`/teams${qs}`);
 }
 
 export async function getTeam(id: number) {
@@ -107,6 +108,12 @@ export async function getTeam(id: number) {
 
 export async function getPlayer(id: number) {
   return request<import("./types").PlayerDetail>(`/players/${id}`);
+}
+
+// ─── Leagues ───
+
+export async function getLeagues() {
+  return request<import("./types").League[]>("/leagues");
 }
 
 // ─── Standings & Top Scorers ───
