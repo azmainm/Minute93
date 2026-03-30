@@ -67,7 +67,7 @@ export class PollerService implements OnModuleInit, OnModuleDestroy {
       .split(',').map(Number);
     this.pollIntervalLive = Number(this.configService.get<string>('POLL_INTERVAL_LIVE') || '30000');
     this.pollIntervalIdle = Number(this.configService.get<string>('POLL_INTERVAL_IDLE') || '300000');
-    this.pollSeason = this.configService.get<string>('POLL_SEASON') || '2024';
+    this.pollSeason = this.configService.get<string>('POLL_SEASON') || '2025';
   }
 
   async onModuleInit() {

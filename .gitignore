@@ -3,3 +3,6 @@
 
 # Prompt templates (private, not for public repo)
 docs/prompts/
+
+# Deployment plan (private, not for public repo)
+docs/DEPLOYMENT_PLAN.md

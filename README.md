@@ -80,6 +80,8 @@ Minute93/
 ├── k6/                              → Load testing
 │   ├── load-test.js                 → Main test (4 VU personas, weighted scenarios)
 │   ├── spike-test.js                → Goal-moment spike simulation (500 → 2000 → 500 VUs)
+│   ├── level1-test.js               → Level 1 sustained load test (45 min, 150 VUs)
+│   ├── match-day-test.js            → Match day simulation (110 min, 3000-5000 VUs, 5 personas)
 │   ├── scenarios/                   → Individual VU persona scripts
 │   ├── helpers/                     → Shared test utilities
 │   ├── post-test.ts                 → Results parser (stores to database)
@@ -113,6 +115,7 @@ Minute93/
 
 | Season | Teams | Matches | Players | Status |
 |--------|-------|---------|---------|--------|
+| UCL 2025-26 | — | — | — | Pending (seed after deploy) |
 | UCL 2024-25 | 81 | 279 | 2,934 total | Complete |
 | UCL 2023-24 | 78 | 214 | across 3 seasons | Complete |
 | UCL 2022-23 | 78 | 214 | 96/145 teams full | Complete |
@@ -200,8 +203,10 @@ npm run lint           # ESLint
 ### Load Testing (k6)
 
 ```bash
-k6 run k6/load-test.js          # Standard load test
-k6 run k6/spike-test.js         # Goal-moment spike simulation
+k6 run k6/load-test.js          # Standard load test (10 min, 50 VUs)
+k6 run k6/level1-test.js        # Level 1 sustained test (45 min, 150 VUs)
+k6 run k6/match-day-test.js     # Match day simulation (110 min, 3000+ VUs)
+k6 run k6/spike-test.js         # Goal-moment spike simulation (500 → 2000 VUs)
 ```
 
 ## Documentation

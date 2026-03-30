@@ -18,7 +18,7 @@ export default function TopScorersPage() {
   const [scorers, setScorers] = useState<TopScorer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [season, setSeason] = useState("2024");
+  const [season, setSeason] = useState("2025");
 
   useEffect(() => {
     async function fetchScorers() {

@@ -15,7 +15,7 @@ import pg from 'pg';
 const API_KEY = process.env.API_FOOTBALL_KEY;
 const API_BASE = process.env.API_FOOTBALL_BASE_URL || 'https://v3.football.api-sports.io';
 const ACTIVE_LEAGUES = (process.env.ACTIVE_LEAGUES || '2').split(',').map(Number);
-const SEASON = Number(process.env.SEED_SEASON || '2024');
+const SEASON = Number(process.env.SEED_SEASON || '2025');
 
 const DATABASE_URL =
   process.env.DATABASE_URL ||
