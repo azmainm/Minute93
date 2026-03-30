@@ -19,9 +19,6 @@ export const metadata: Metadata = {
   },
   description:
     "Live scores, historical stats, league standings, and player search. Built for the beautiful game.",
-  icons: {
-    icon: "/favicon.ico",
-  },
 };
 
 export default function RootLayout({
