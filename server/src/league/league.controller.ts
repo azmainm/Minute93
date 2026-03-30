@@ -1,4 +1,4 @@
-import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { LeagueService } from './league.service.js';
 import { IsInt, IsOptional } from 'class-validator';
 
@@ -20,11 +20,20 @@ class TopScorersQueryDto {
   @IsInt()
   @IsOptional()
   season?: number;
+
+  @IsInt()
+  @IsOptional()
+  league_id?: number;
 }
 
 @Controller()
 export class LeagueController {
   constructor(private readonly leagueService: LeagueService) {}
+
+  @Get('leagues')
+  async findAll() {
+    return this.leagueService.findAll();
+  }
 
   @Get('standings')
   async getStandings(@Query() query: StandingsQueryDto) {
@@ -33,6 +42,6 @@ export class LeagueController {
 
   @Get('top-scorers')
   async getTopScorers(@Query() query: TopScorersQueryDto) {
-    return this.leagueService.getTopScorers(query.limit || 20, query.season);
+    return this.leagueService.getTopScorers(query.limit || 20, query.season, query.league_id);
   }
 }

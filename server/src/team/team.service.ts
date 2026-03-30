@@ -16,8 +16,9 @@ export class TeamService {
     private readonly playerRepository: Repository<Player>,
   ) {}
 
-  async findAll(): Promise<Team[]> {
+  async findAll(leagueId?: number): Promise<Team[]> {
     return this.teamRepository.find({
+      where: leagueId ? { league_id: leagueId } : undefined,
       relations: ['league'],
       order: { name: 'ASC' },
     });

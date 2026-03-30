@@ -32,15 +32,17 @@ export class LeagueService {
     return this.dataSource.query(query, [leagueId || null, season || null]);
   }
 
-  async getTopScorers(limit: number = 20, season?: number): Promise<unknown[]> {
+  async getTopScorers(limit: number = 20, season?: number, leagueId?: number): Promise<unknown[]> {
     const query = `
-      SELECT name, team_name, team_logo, goals, season
-      FROM mv_top_scorers
-      WHERE ($1::int IS NULL OR season = $1)
-      ORDER BY goals DESC
+      SELECT ts.name, ts.team_name, ts.team_logo, ts.goals, ts.season
+      FROM mv_top_scorers ts
+      LEFT JOIN teams t ON ts.team_id = t.id
+      WHERE ($1::int IS NULL OR ts.season = $1)
+        AND ($3::int IS NULL OR t.league_id = $3)
+      ORDER BY ts.goals DESC
       LIMIT $2
     `;
 
-    return this.dataSource.query(query, [season || null, limit]);
+    return this.dataSource.query(query, [season || null, limit, leagueId || null]);
   }
 }

@@ -1,13 +1,20 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { TeamService } from './team.service.js';
+import { IsInt, IsOptional } from 'class-validator';
+
+class TeamQueryDto {
+  @IsInt()
+  @IsOptional()
+  league_id?: number;
+}
 
 @Controller('teams')
 export class TeamController {
   constructor(private readonly teamService: TeamService) {}
 
   @Get()
-  async findAll() {
-    return this.teamService.findAll();
+  async findAll(@Query() query: TeamQueryDto) {
+    return this.teamService.findAll(query.league_id);
   }
 
   @Get(':id')
