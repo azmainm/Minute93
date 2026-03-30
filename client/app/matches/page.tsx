@@ -31,17 +31,20 @@ export default function MatchesPage() {
     setLoading(true);
     setError(null);
     try {
-      const leagueParam = selectedLeague !== "all" ? { league_id: selectedLeague } : {};
       if (activeTab === "live") {
         const data = await getLiveMatches();
         setLiveMatches(selectedLeague !== "all"
           ? data.filter((m) => String(m.league_id) === selectedLeague)
           : data);
       } else if (activeTab === "results") {
-        const data = await getMatches({ status: "finished", limit: "20", season: selectedSeason, sort: "kickoff_at", order: "DESC", ...leagueParam });
+        const params: Record<string, string> = { status: "finished", limit: "20", season: selectedSeason, sort: "kickoff_at", order: "DESC" };
+        if (selectedLeague !== "all") params.league_id = selectedLeague;
+        const data = await getMatches(params);
         setResults(data);
       } else {
-        const data = await getMatches({ status: "scheduled", limit: "20", sort: "kickoff_at", order: "ASC", ...leagueParam });
+        const params: Record<string, string> = { status: "scheduled", limit: "20", sort: "kickoff_at", order: "ASC" };
+        if (selectedLeague !== "all") params.league_id = selectedLeague;
+        const data = await getMatches(params);
         setUpcoming(data);
       }
     } catch (err) {
