@@ -16,18 +16,27 @@ class EnvironmentVariables {
   PORT: number = 3000;
 
   @IsString()
+  @IsOptional()
+  DATABASE_URL: string;
+
+  @IsString()
+  @IsOptional()
   DATABASE_HOST: string;
 
   @IsNumber()
+  @IsOptional()
   DATABASE_PORT: number;
 
   @IsString()
+  @IsOptional()
   DATABASE_USER: string;
 
   @IsString()
+  @IsOptional()
   DATABASE_PASSWORD: string;
 
   @IsString()
+  @IsOptional()
   DATABASE_NAME: string;
 
   @IsString()
