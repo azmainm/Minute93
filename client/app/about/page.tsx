@@ -128,7 +128,7 @@ export default function AboutPage() {
             I&apos;m Azmain — a software engineer and lifelong Real Madrid fan. Minute93 is my portfolio project: a way to demonstrate what I can build as a software architect and engineer, wrapped in something I genuinely care about.
           </p>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            This isn&apos;t a toy demo. It&apos;s a full distributed system — event-driven architecture, real-time data pipelines, production-grade infrastructure — designed to handle live football data during the Champions League 2025-26 season.
+            This isn&apos;t a toy demo. It&apos;s a full distributed system — event-driven architecture, real-time data pipelines, production-grade infrastructure — designed to handle live football data across the Champions League, Premier League, and La Liga.
           </p>
           <p className="mt-4 text-muted-foreground leading-relaxed">
             The goal: build something real, deploy it to production, stress-test it with live data, and write about the engineering decisions honestly — what worked, what didn&apos;t, and why.

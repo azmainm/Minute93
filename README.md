@@ -2,7 +2,7 @@
 
 Real-time football intelligence platform with live scores, historical stats, league standings, and player/team search.
 
-Built as a distributed systems portfolio piece targeting the Champions League 2025-26 season.
+Built as a distributed systems portfolio piece covering the Champions League, Premier League, and La Liga.
 
 **Domain:** [minute93.com](https://minute93.com)
 
@@ -113,12 +113,11 @@ Minute93/
 
 ## Seeded Data
 
-| Season | Teams | Matches | Players | Status |
-|--------|-------|---------|---------|--------|
-| UCL 2025-26 | — | — | — | Pending (seed after deploy) |
-| UCL 2024-25 | 81 | 279 | 2,934 total | Complete |
-| UCL 2023-24 | 78 | 214 | across 3 seasons | Complete |
-| UCL 2022-23 | 78 | 214 | 96/145 teams full | Complete |
+| League | Seasons | Status |
+|--------|---------|--------|
+| Champions League | 2022-23, 2023-24, 2024-25, 2025-26 | 2022-2024 seeded, 2025 pending |
+| Premier League | 2023-24, 2024-25, 2025-26 | Pending (seed after deploy) |
+| La Liga | 2023-24, 2024-25, 2025-26 | Pending (seed after deploy) |
 
 ## Getting Started
 

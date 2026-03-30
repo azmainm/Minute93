@@ -45,7 +45,7 @@ export default function TopScorersPage() {
       <PageHeader
         icon={Zap}
         title="Top Scorers"
-        subtitle="Tournament goal rankings, auto-updated after every match event is processed."
+        subtitle="Goal rankings across all competitions, auto-updated after every match event is processed."
       />
 
       <div className="mb-6 flex flex-wrap items-center justify-end gap-3">

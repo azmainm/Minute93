@@ -53,7 +53,7 @@ export default function StandingsPage() {
       <PageHeader
         icon={Trophy}
         title="Standings"
-        subtitle="League table updated automatically after every match. Points, goal difference, and form at a glance."
+        subtitle="League tables updated automatically after every match. Select a competition and season to view standings."
       />
 
       <div className="mb-6 flex flex-wrap items-center justify-end gap-3">
