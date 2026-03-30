@@ -26,7 +26,11 @@ if (!API_KEY) {
   process.exit(1);
 }
 
-const pool = new pg.Pool({ connectionString: DATABASE_URL });
+const isRemote = DATABASE_URL.includes('render.com') || DATABASE_URL.includes('amazonaws.com');
+const pool = new pg.Pool({
+  connectionString: DATABASE_URL,
+  ssl: isRemote ? { rejectUnauthorized: false } : false,
+});
 
 // Rate limiting: API-Football free tier = 100 req/day
 let requestCount = 0;
