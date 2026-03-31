@@ -194,30 +194,24 @@ export default function AdminAnalyticsPage() {
       />
 
       {/* Overview Stats */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-8 grid gap-4 sm:grid-cols-3">
         <StatCard
           icon={Users}
-          title="Total Users"
+          title="Registered Users"
           value={overview?.users.total_users || "0"}
           subtitle={`${overview?.users.new_signups_today || 0} new today`}
         />
         <StatCard
           icon={Activity}
-          title="Page Views Today"
-          value={overview?.traffic.page_views_today || "0"}
-          subtitle={`${overview?.traffic.total_page_views || 0} total`}
+          title="Page Views"
+          value={Number(overview?.traffic.total_page_views || 0).toLocaleString()}
+          subtitle={`${Number(overview?.traffic.page_views_today || 0).toLocaleString()} today`}
         />
         <StatCard
           icon={Globe}
-          title="Sessions Today"
-          value={overview?.traffic.sessions_today || "0"}
-          subtitle={`${overview?.traffic.total_sessions || 0} total`}
-        />
-        <StatCard
-          icon={Users}
-          title="Auth Split"
-          value={`${overview?.users.google_users || 0} / ${overview?.users.credentials_users || 0}`}
-          subtitle="Google / Email"
+          title="Sessions"
+          value={Number(overview?.traffic.total_sessions || 0).toLocaleString()}
+          subtitle={`${Number(overview?.traffic.sessions_today || 0).toLocaleString()} today`}
         />
       </div>
 
