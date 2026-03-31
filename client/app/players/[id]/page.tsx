@@ -3,26 +3,12 @@
 import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  User,
-  CircleDot,
-  RectangleVertical,
-  Target,
-} from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorMessage } from "@/components/shared/error-message";
 import { getPlayer } from "@/lib/api";
 import type { PlayerDetail } from "@/lib/types";
-
-const statCards = [
-  { key: "goals" as const, label: "Goals", icon: CircleDot, color: "text-primary" },
-  { key: "assists" as const, label: "Assists", icon: Target, color: "text-blue-500" },
-  { key: "yellowCards" as const, label: "Yellow Cards", icon: RectangleVertical, color: "text-amber-500" },
-  { key: "redCards" as const, label: "Red Cards", icon: RectangleVertical, color: "text-red-500" },
-];
 
 export default function PlayerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -55,11 +41,6 @@ export default function PlayerDetailPage({ params }: { params: Promise<{ id: str
             <Skeleton className="h-4 w-32" />
           </div>
         </div>
-        <div className="mt-8 grid grid-cols-3 gap-3 sm:grid-cols-5">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 rounded-xl" />
-          ))}
-        </div>
       </div>
     );
   }
@@ -72,7 +53,7 @@ export default function PlayerDetailPage({ params }: { params: Promise<{ id: str
     );
   }
 
-  const { player, stats } = data;
+  const { player } = data;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
@@ -82,7 +63,7 @@ export default function PlayerDetailPage({ params }: { params: Promise<{ id: str
       </Link>
 
       {/* Player Header */}
-      <div className="mb-8 flex items-center gap-5">
+      <div className="flex items-center gap-5">
         {player.photo_url ? (
           <Image src={player.photo_url} alt={player.name} width={80} height={80} className="size-20 rounded-full border-2 border-primary/20 object-cover" />
         ) : (
@@ -106,24 +87,6 @@ export default function PlayerDetailPage({ params }: { params: Promise<{ id: str
               </Link>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="mb-8">
-        <h2 className="mb-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Season Statistics
-        </h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {statCards.map(({ key, label, icon: Icon, color }) => (
-            <Card key={key}>
-              <CardContent className="flex flex-col items-center p-4 text-center">
-                <Icon className={`mb-2 size-5 ${color}`} />
-                <div className="text-2xl font-bold">{stats?.[key] ?? 0}</div>
-                <div className="text-xs text-muted-foreground">{label}</div>
-              </CardContent>
-            </Card>
-          ))}
         </div>
       </div>
     </div>
