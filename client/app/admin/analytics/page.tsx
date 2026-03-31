@@ -14,6 +14,7 @@ import { useAuth } from "@/lib/auth-context";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
@@ -38,10 +39,6 @@ interface EngagementData {
     date: string;
     sessions: string;
     page_views: string;
-  }>;
-  popularPages: Array<{
-    path: string;
-    views: string;
   }>;
 }
 
@@ -92,6 +89,23 @@ function StatCard({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function Th({ children, tip, align = "left" }: { children: React.ReactNode; tip: string; align?: "left" | "right" }) {
+  return (
+    <th className={`pb-2 font-medium ${align === "right" ? "text-right" : "text-left"}`}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="cursor-help border-b border-dashed border-muted-foreground/40">
+            {children}
+          </span>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-[250px] text-xs">
+          {tip}
+        </TooltipContent>
+      </Tooltip>
+    </th>
   );
 }
 
@@ -208,71 +222,42 @@ export default function AdminAnalyticsPage() {
 
         {/* Traffic Tab */}
         <TabsContent value="engagement">
-          <div className="grid gap-4 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Daily Traffic</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-1">
-                  <div className="mb-2 flex items-center justify-between text-xs font-medium uppercase text-muted-foreground">
-                    <span>Date</span>
-                    <div className="flex gap-6">
-                      <span>Sessions</span>
-                      <span>Views</span>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Daily Traffic</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-1">
+                <div className="mb-2 flex items-center justify-between text-xs font-medium uppercase text-muted-foreground">
+                  <span>Date</span>
+                  <div className="flex gap-6">
+                    <span>Sessions</span>
+                    <span>Views</span>
+                  </div>
+                </div>
+                {engagement?.dailyActiveUsers.slice(0, 14).map((day) => (
+                  <div
+                    key={day.date}
+                    className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-muted/50"
+                  >
+                    <span className="text-muted-foreground">
+                      {new Date(day.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    </span>
+                    <div className="flex gap-8">
+                      <span className="font-medium tabular-nums">{Number(day.sessions).toLocaleString()}</span>
+                      <span className="tabular-nums text-muted-foreground">{Number(day.page_views).toLocaleString()}</span>
                     </div>
                   </div>
-                  {engagement?.dailyActiveUsers.slice(0, 14).map((day) => (
-                    <div
-                      key={day.date}
-                      className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-muted/50"
-                    >
-                      <span className="text-muted-foreground">
-                        {new Date(day.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                      </span>
-                      <div className="flex gap-8">
-                        <span className="font-medium tabular-nums">{Number(day.sessions).toLocaleString()}</span>
-                        <span className="tabular-nums text-muted-foreground">{Number(day.page_views).toLocaleString()}</span>
-                      </div>
-                    </div>
-                  ))}
-                  {(!engagement?.dailyActiveUsers ||
-                    engagement.dailyActiveUsers.length === 0) && (
-                    <p className="py-4 text-center text-sm text-muted-foreground">
-                      No traffic data yet
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Popular Pages (7 days)</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-1">
-                  {engagement?.popularPages.map((page, i) => (
-                    <div
-                      key={page.path}
-                      className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-muted/50"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="w-5 text-xs text-muted-foreground">{i + 1}.</span>
-                        <span className="font-mono text-xs">{page.path}</span>
-                      </div>
-                      <span className="font-medium tabular-nums">{Number(page.views).toLocaleString()}</span>
-                    </div>
-                  ))}
-                  {(!engagement?.popularPages ||
-                    engagement.popularPages.length === 0) && (
-                    <p className="py-4 text-center text-sm text-muted-foreground">
-                      No page view data yet
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                ))}
+                {(!engagement?.dailyActiveUsers ||
+                  engagement.dailyActiveUsers.length === 0) && (
+                  <p className="py-4 text-center text-sm text-muted-foreground">
+                    No traffic data yet
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Usage Tab */}
@@ -378,19 +363,20 @@ export default function AdminAnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
+                <TooltipProvider delayDuration={200}>
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b text-xs uppercase text-muted-foreground">
                       <th className="pb-2 text-left font-medium">Test</th>
                       <th className="pb-2 text-left font-medium">Date</th>
-                      <th className="pb-2 text-right font-medium">VUs</th>
-                      <th className="pb-2 text-right font-medium">Requests</th>
-                      <th className="pb-2 text-right font-medium">RPS</th>
-                      <th className="pb-2 text-right font-medium">p50</th>
-                      <th className="pb-2 text-right font-medium">p95</th>
-                      <th className="pb-2 text-right font-medium">p99</th>
-                      <th className="pb-2 text-right font-medium">Errors</th>
-                      <th className="pb-2 text-right font-medium">Result</th>
+                      <Th align="right" tip="Virtual Users — peak concurrent simulated users">VUs</Th>
+                      <Th align="right" tip="Total HTTP requests made during the test">Requests</Th>
+                      <Th align="right" tip="Requests per second — sustained throughput">RPS</Th>
+                      <Th align="right" tip="Median response time — 50% of requests faster than this. Target: < 200ms">p50</Th>
+                      <Th align="right" tip="95th percentile response time — only 5% of requests slower. Target: < 500ms">p95</Th>
+                      <Th align="right" tip="99th percentile response time — worst-case excluding outliers. Target: < 2000ms">p99</Th>
+                      <Th align="right" tip="HTTP error rate — percentage of non-2xx responses. Target: < 1%">Errors</Th>
+                      <Th align="right" tip="PASS if all k6 thresholds met (p95 < 500ms, p99 < 2000ms, errors < 1%). FAIL if any threshold breached.">Result</Th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -436,6 +422,7 @@ export default function AdminAnalyticsPage() {
                     ))}
                   </tbody>
                 </table>
+                </TooltipProvider>
                 {(!loadTests || loadTests.length === 0) && (
                   <div className="flex flex-col items-center py-8 text-center">
                     <Gauge className="mb-2 size-8 text-muted-foreground" />
