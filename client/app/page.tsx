@@ -19,32 +19,32 @@ const features = [
   {
     icon: Radio,
     title: "Live Scores",
-    description: "Real-time match updates powered by server-sent events. No refresh needed.",
+    description: "Kafka-powered event pipeline pushes updates to your browser via SSE. No refresh needed.",
   },
   {
     icon: Trophy,
     title: "Standings",
-    description: "Auto-updated league tables computed after every match event.",
+    description: "Auto-updated league tables backed by Redis cache-aside for instant loads.",
   },
   {
     icon: BarChart3,
     title: "Match Stats",
-    description: "Detailed match timelines with goals, cards, and substitutions.",
+    description: "Detailed match timelines with goals, cards, and substitutions from real-time event streams.",
   },
   {
     icon: Search,
     title: "Fuzzy Search",
-    description: "Find any player or team instantly, even with misspellings.",
+    description: "Find any player or team instantly with PostgreSQL trigram indexing, even with misspellings.",
   },
   {
     icon: Users,
     title: "Team Profiles",
-    description: "Squad lists, recent form, and upcoming fixtures at a glance.",
+    description: "Squad lists, recent form, and upcoming fixtures served through Nginx reverse proxy.",
   },
   {
     icon: CalendarDays,
     title: "Full Schedule",
-    description: "Browse past results and upcoming fixtures across all competitions.",
+    description: "Browse past results and upcoming fixtures across all competitions with Redis-cached responses.",
   },
 ];
 
