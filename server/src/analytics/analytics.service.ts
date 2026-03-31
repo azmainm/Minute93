@@ -23,6 +23,7 @@ export class AnalyticsService {
         COUNT(DISTINCT CASE WHEN created_at >= NOW() - INTERVAL '24 hours' THEN session_id END) AS sessions_today
       FROM analytics_events
       WHERE event_type = 'page_view'
+        AND (session_id IS NULL OR session_id NOT LIKE 'k6-%')
     `);
 
     return { users: userStats, traffic: trafficStats };
@@ -50,6 +51,7 @@ export class AnalyticsService {
         COUNT(*) AS page_views
       FROM analytics_events
       WHERE created_at >= NOW() - INTERVAL '30 days'
+        AND (session_id IS NULL OR session_id NOT LIKE 'k6-%')
       GROUP BY DATE(created_at)
       ORDER BY date DESC
     `);
@@ -61,6 +63,7 @@ export class AnalyticsService {
       FROM analytics_events
       WHERE event_type = 'page_view'
         AND created_at >= NOW() - INTERVAL '7 days'
+        AND (session_id IS NULL OR session_id NOT LIKE 'k6-%')
       GROUP BY event_data->>'path'
       ORDER BY views DESC
       LIMIT 20
@@ -77,6 +80,7 @@ export class AnalyticsService {
       FROM analytics_events
       WHERE event_type = 'search'
         AND created_at >= NOW() - INTERVAL '7 days'
+        AND (session_id IS NULL OR session_id NOT LIKE 'k6-%')
       GROUP BY event_data->>'query'
       ORDER BY count DESC
       LIMIT 20
@@ -90,6 +94,7 @@ export class AnalyticsService {
       WHERE event_type = 'page_view'
         AND event_data->>'path' LIKE '/matches/%'
         AND created_at >= NOW() - INTERVAL '7 days'
+        AND (session_id IS NULL OR session_id NOT LIKE 'k6-%')
       GROUP BY event_data->>'path'
       ORDER BY views DESC
       LIMIT 10
@@ -101,6 +106,7 @@ export class AnalyticsService {
         COUNT(*) AS count
       FROM analytics_events
       WHERE created_at >= NOW() - INTERVAL '7 days'
+        AND (session_id IS NULL OR session_id NOT LIKE 'k6-%')
       GROUP BY device_type
       ORDER BY count DESC
     `);
