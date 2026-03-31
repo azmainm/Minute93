@@ -335,9 +335,46 @@ export default function AdminAnalyticsPage() {
 
         {/* Load Tests Tab */}
         <TabsContent value="load-tests">
+          {loadTests && loadTests.length > 0 && (
+            <div className="mb-4 grid gap-4 sm:grid-cols-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <p className="text-xs text-muted-foreground">Tests Run</p>
+                  <p className="text-2xl font-bold">{loadTests.length}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {loadTests.filter((t) => t.passed).length} passed
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <p className="text-xs text-muted-foreground">Total Requests</p>
+                  <p className="text-2xl font-bold">
+                    {loadTests.reduce((sum, t) => sum + t.total_requests, 0).toLocaleString()}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <p className="text-xs text-muted-foreground">Best p95</p>
+                  <p className="text-2xl font-bold">
+                    {Math.min(...loadTests.map((t) => Number(t.p95_response_ms))).toFixed(0)}ms
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <p className="text-xs text-muted-foreground">Peak VUs</p>
+                  <p className="text-2xl font-bold">
+                    {Math.max(...loadTests.map((t) => t.virtual_users_peak))}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Load Test Runs</CardTitle>
+              <CardTitle className="text-base">Test History</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -345,34 +382,46 @@ export default function AdminAnalyticsPage() {
                   <thead>
                     <tr className="border-b text-xs uppercase text-muted-foreground">
                       <th className="pb-2 text-left font-medium">Test</th>
+                      <th className="pb-2 text-left font-medium">Date</th>
                       <th className="pb-2 text-right font-medium">VUs</th>
                       <th className="pb-2 text-right font-medium">Requests</th>
                       <th className="pb-2 text-right font-medium">RPS</th>
+                      <th className="pb-2 text-right font-medium">p50</th>
                       <th className="pb-2 text-right font-medium">p95</th>
-                      <th className="pb-2 text-right font-medium">Error%</th>
+                      <th className="pb-2 text-right font-medium">p99</th>
+                      <th className="pb-2 text-right font-medium">Errors</th>
                       <th className="pb-2 text-right font-medium">Result</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     {loadTests?.map((test) => (
-                      <tr key={test.id}>
-                        <td className="py-2 font-medium">{test.test_name}</td>
-                        <td className="py-2 text-right">
+                      <tr key={test.id} className="hover:bg-muted/50">
+                        <td className="py-2.5 font-medium">{test.test_name}</td>
+                        <td className="py-2.5 text-muted-foreground">
+                          {new Date(test.started_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                        </td>
+                        <td className="py-2.5 text-right tabular-nums">
                           {test.virtual_users_peak}
                         </td>
-                        <td className="py-2 text-right">
-                          {test.total_requests}
+                        <td className="py-2.5 text-right tabular-nums">
+                          {test.total_requests.toLocaleString()}
                         </td>
-                        <td className="py-2 text-right">
-                          {test.requests_per_second}
+                        <td className="py-2.5 text-right tabular-nums">
+                          {Number(test.requests_per_second).toFixed(1)}
                         </td>
-                        <td className="py-2 text-right">
-                          {test.p95_response_ms}ms
+                        <td className="py-2.5 text-right tabular-nums">
+                          {Number(test.p50_response_ms).toFixed(0)}ms
                         </td>
-                        <td className="py-2 text-right">
-                          {test.error_rate_pct}%
+                        <td className="py-2.5 text-right tabular-nums">
+                          {Number(test.p95_response_ms).toFixed(0)}ms
                         </td>
-                        <td className="py-2 text-right">
+                        <td className="py-2.5 text-right tabular-nums">
+                          {Number(test.p99_response_ms).toFixed(0)}ms
+                        </td>
+                        <td className="py-2.5 text-right tabular-nums">
+                          {Number(test.error_rate_pct).toFixed(2)}%
+                        </td>
+                        <td className="py-2.5 text-right">
                           <span
                             className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                               test.passed
@@ -392,6 +441,9 @@ export default function AdminAnalyticsPage() {
                     <Gauge className="mb-2 size-8 text-muted-foreground" />
                     <p className="text-sm text-muted-foreground">
                       No load tests recorded yet
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Run a k6 test to see results here
                     </p>
                   </div>
                 )}
