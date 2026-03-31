@@ -48,3 +48,13 @@ echo "    - console-output.txt  (terminal output)"
 echo "    - summary.json        (structured summary)"
 echo "    - raw-metrics.json    (detailed metrics)"
 echo "============================================"
+
+# Auto-upload results to admin dashboard if ADMIN_PASSWORD is set
+if [ -n "$ADMIN_PASSWORD" ] && [ -f "$RESULTS_DIR/summary.json" ]; then
+  echo ""
+  echo "Uploading results to admin dashboard..."
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+  BASE_URL="$BASE_URL" ADMIN_PASSWORD="$ADMIN_PASSWORD" \
+    "$SCRIPT_DIR/upload-results.sh" "$TEST_NAME" "$RESULTS_DIR/summary.json" || \
+    echo "Warning: Upload failed (results are still saved locally)"
+fi

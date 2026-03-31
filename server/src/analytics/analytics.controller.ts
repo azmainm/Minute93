@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { AdminGuard } from '../auth/guards/admin.guard.js';
@@ -41,5 +41,23 @@ export class AnalyticsController {
   @Get('load-tests')
   async getLoadTestRuns(@Query('limit') limit?: string) {
     return this.analyticsService.getLoadTestRuns(limit ? Number(limit) : 20);
+  }
+
+  @Post('load-tests')
+  async createLoadTestRun(@Body() body: {
+    test_name: string;
+    started_at: string;
+    virtual_users_peak: number;
+    total_requests: number;
+    requests_per_second: number;
+    error_rate_pct: number;
+    p50_response_ms: number;
+    p95_response_ms: number;
+    p99_response_ms: number;
+    passed: boolean;
+    notes?: string;
+    config_json?: Record<string, unknown>;
+  }) {
+    return this.analyticsService.createLoadTestRun(body);
   }
 }

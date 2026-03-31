@@ -128,4 +128,43 @@ export class AnalyticsService {
       [limit],
     );
   }
+
+  async createLoadTestRun(data: {
+    test_name: string;
+    started_at: string;
+    virtual_users_peak: number;
+    total_requests: number;
+    requests_per_second: number;
+    error_rate_pct: number;
+    p50_response_ms: number;
+    p95_response_ms: number;
+    p99_response_ms: number;
+    passed: boolean;
+    notes?: string;
+    config_json?: Record<string, unknown>;
+  }): Promise<unknown> {
+    const [row] = await this.dataSource.query(
+      `INSERT INTO load_test_runs
+        (test_name, started_at, virtual_users_peak, total_requests,
+         requests_per_second, error_rate_pct, p50_response_ms,
+         p95_response_ms, p99_response_ms, passed, notes, config_json)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+       RETURNING *`,
+      [
+        data.test_name,
+        data.started_at,
+        data.virtual_users_peak,
+        data.total_requests,
+        data.requests_per_second,
+        data.error_rate_pct,
+        data.p50_response_ms,
+        data.p95_response_ms,
+        data.p99_response_ms,
+        data.passed,
+        data.notes || null,
+        data.config_json ? JSON.stringify(data.config_json) : null,
+      ],
+    );
+    return row;
+  }
 }
