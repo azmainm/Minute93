@@ -6,3 +6,9 @@ docs/prompts/
 
 # Deployment plan (private, not for public repo)
 docs/DEPLOYMENT_PLAN.md
+
+# Seed scripts with production credentials
+server/scripts/seed-all.sh
+
+# k6 raw metrics (large files) — keep summaries and console output
+k6/results/*/raw-metrics.json

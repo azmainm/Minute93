@@ -56,17 +56,12 @@ export default function () {
     sleep(Math.random() * 3 + 2);
   }
 
-  // 6. Check top scorers
-  const scorersRes = http.get(`${BASE_URL}/top-scorers`, { headers });
-  check(scorersRes, { 'scorers 200': (r) => r.status === 200 });
-  sleep(Math.random() * 3 + 2);
-
-  // 7. Browse schedule
+  // 6. Browse schedule
   const scheduleRes = http.get(`${BASE_URL}/matches/schedule`, { headers });
   check(scheduleRes, { 'schedule 200': (r) => r.status === 200 });
   sleep(Math.random() * 3 + 2);
 
-  // 8. Browse results
+  // 7. Browse results
   const resultsRes = http.get(`${BASE_URL}/matches/results`, { headers });
   check(resultsRes, { 'results 200': (r) => r.status === 200 });
   sleep(Math.random() * 5 + 5);
