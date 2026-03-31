@@ -79,6 +79,57 @@ Check these files when working on specific areas:
 - `.claude/docs/production-setup.md` — Render Postgres, Render Redis, Redpanda Cloud deployment instructions
 - `.claude/docs/ai-development-log.md` — Session log for AI-assisted development (update at start and end of every session)
 
+## k6 Load Testing
+
+Tests live in `k6/` and target production at `https://minute93.onrender.com`.
+
+### Test levels
+
+| Test | Script | Duration | Peak VUs | When |
+|------|--------|----------|----------|------|
+| Preliminary | `k6/preliminary-test.js` | 30 min | 200 | Pre-launch validation |
+| Level 1 | `k6/level1-test.js` | 45 min | 200 (spikes) | April 4 |
+| Match Day | `k6/match-day-test.js` | 110 min | 3,000–5,000 (spikes) | April 8–9 |
+
+### Running a test
+
+```bash
+# Option 1: Use the wrapper script (recommended — saves reports + auto-uploads)
+ADMIN_PASSWORD='<admin password>' ./k6/run-test.sh <test-name>
+# test-name: preliminary | level1 | match-day | spike
+
+# Option 2: Run k6 directly
+k6 run --env BASE_URL=https://minute93.onrender.com k6/preliminary-test.js
+```
+
+### Results pipeline
+
+1. `run-test.sh` saves reports to `k6/results/<test-name>-<timestamp>/` (console-output.txt, summary.json, raw-metrics.json)
+2. If `ADMIN_PASSWORD` is set, results are auto-uploaded to the admin dashboard via `POST /admin/analytics/load-tests`
+3. The upload script (`k6/upload-results.sh`) parses summary.json and authenticates as `admin@minute93.com`
+4. Results appear in the admin dashboard at `/admin/analytics` → Load Tests tab
+
+### Manual upload (for past tests or if auto-upload failed)
+
+```bash
+ADMIN_PASSWORD='<admin password>' ./k6/upload-results.sh <test-name> <path-to-summary.json>
+```
+
+### Key files
+
+- `k6/run-test.sh` — Wrapper: runs k6, saves reports, auto-uploads
+- `k6/upload-results.sh` — Parses k6 summary JSON, logs in as admin, POSTs to API
+- `k6/helpers/config.js` — BASE_URL and shared thresholds
+- `k6/helpers/geo.js` — Random country generator for geo-distributed simulation
+- `k6/scenarios/` — Reusable user behavior scenarios (casual-viewer, explorer, searcher, power-user)
+- `k6/results/` — Local test reports (raw-metrics.json is gitignored, summaries are kept)
+
+### Notes
+
+- The admin password contains special characters — the upload script uses Python internally to avoid shell escaping issues. Do NOT try to inline it in curl commands.
+- `raw-metrics.json` files are gitignored (large). Only `summary.json` and `console-output.txt` are committed.
+- Level 1 and Match Day tests include realistic spike patterns (goal surges, halftime dips, kickoff spikes).
+
 ## Local Development
 
 ```bash
