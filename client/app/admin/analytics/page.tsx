@@ -48,7 +48,6 @@ interface EngagementData {
 interface FeatureData {
   searchQueries: Array<{ query: string; count: string }>;
   mostViewedMatches: Array<{ path: string; views: string }>;
-  deviceBreakdown: Array<{ device_type: string; count: string }>;
 }
 
 interface LoadTest {
@@ -278,25 +277,28 @@ export default function AdminAnalyticsPage() {
 
         {/* Usage Tab */}
         <TabsContent value="features">
-          <div className="grid gap-4 lg:grid-cols-3">
+          <div className="grid gap-4 lg:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Top Searches</CardTitle>
+                <CardTitle className="text-base">Top Searches (7 days)</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {features?.searchQueries.map((q) => (
+                <div className="space-y-1">
+                  {features?.searchQueries.map((q, i) => (
                     <div
                       key={q.query}
-                      className="flex items-center justify-between text-sm"
+                      className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-muted/50"
                     >
-                      <span>{q.query}</span>
-                      <span className="font-medium">{q.count}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 text-xs text-muted-foreground">{i + 1}.</span>
+                        <span>{q.query}</span>
+                      </div>
+                      <span className="font-medium tabular-nums">{Number(q.count).toLocaleString()}</span>
                     </div>
                   ))}
                   {(!features?.searchQueries ||
                     features.searchQueries.length === 0) && (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="py-4 text-center text-sm text-muted-foreground">
                       No search data yet
                     </p>
                   )}
@@ -305,60 +307,25 @@ export default function AdminAnalyticsPage() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Most Viewed Matches</CardTitle>
+                <CardTitle className="text-base">Most Viewed Matches (7 days)</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {features?.mostViewedMatches.map((m) => (
+                <div className="space-y-1">
+                  {features?.mostViewedMatches.map((m, i) => (
                     <div
                       key={m.path}
-                      className="flex items-center justify-between text-sm"
+                      className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-muted/50"
                     >
-                      <span className="font-mono text-xs">{m.path}</span>
-                      <span className="font-medium">{m.views}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 text-xs text-muted-foreground">{i + 1}.</span>
+                        <span className="font-mono text-xs">{m.path}</span>
+                      </div>
+                      <span className="font-medium tabular-nums">{Number(m.views).toLocaleString()}</span>
                     </div>
                   ))}
                   {(!features?.mostViewedMatches ||
                     features.mostViewedMatches.length === 0) && (
-                    <p className="text-sm text-muted-foreground">No data yet</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Device Breakdown</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {features?.deviceBreakdown.map((d) => {
-                    const total = features.deviceBreakdown.reduce(
-                      (sum, x) => sum + Number(x.count),
-                      0,
-                    );
-                    const pct = total > 0
-                      ? ((Number(d.count) / total) * 100).toFixed(1)
-                      : "0";
-                    return (
-                      <div key={d.device_type}>
-                        <div className="flex justify-between text-sm">
-                          <span className="capitalize">{d.device_type}</span>
-                          <span>
-                            {d.count} ({pct}%)
-                          </span>
-                        </div>
-                        <div className="mt-1 h-2 rounded-full bg-muted">
-                          <div
-                            className="h-full rounded-full bg-primary"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {(!features?.deviceBreakdown ||
-                    features.deviceBreakdown.length === 0) && (
-                    <p className="text-sm text-muted-foreground">No data yet</p>
+                    <p className="py-4 text-center text-sm text-muted-foreground">No data yet</p>
                   )}
                 </div>
               </CardContent>
