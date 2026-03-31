@@ -8,9 +8,7 @@ import {
   Globe,
   Activity,
   Search,
-  AlertTriangle,
   Gauge,
-  Calendar,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { PageHeader } from "@/components/shared/page-header";
@@ -35,12 +33,6 @@ interface OverviewData {
   };
 }
 
-interface GeoRow {
-  country: string;
-  sessions: string;
-  page_views: string;
-}
-
 interface EngagementData {
   dailyActiveUsers: Array<{
     date: string;
@@ -57,16 +49,6 @@ interface FeatureData {
   searchQueries: Array<{ query: string; count: string }>;
   mostViewedMatches: Array<{ path: string; views: string }>;
   deviceBreakdown: Array<{ device_type: string; count: string }>;
-}
-
-interface Incident {
-  id: number;
-  severity: string;
-  metric_name: string;
-  triggered_at: string;
-  resolved_at: string | null;
-  duration_seconds: number | null;
-  auto_description: string;
 }
 
 interface LoadTest {
@@ -133,10 +115,8 @@ export default function AdminAnalyticsPage() {
   const router = useRouter();
   const { isLoading: authLoading, isAdmin } = useAuth();
   const [overview, setOverview] = useState<OverviewData | null>(null);
-  const [geo, setGeo] = useState<GeoRow[] | null>(null);
   const [engagement, setEngagement] = useState<EngagementData | null>(null);
   const [features, setFeatures] = useState<FeatureData | null>(null);
-  const [incidents, setIncidents] = useState<Incident[] | null>(null);
   const [loadTests, setLoadTests] = useState<LoadTest[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -149,19 +129,15 @@ export default function AdminAnalyticsPage() {
 
   useEffect(() => {
     async function loadData() {
-      const [o, g, e, f, i, l] = await Promise.all([
+      const [o, e, f, l] = await Promise.all([
         fetchAdmin<OverviewData>("/admin/analytics/overview"),
-        fetchAdmin<GeoRow[]>("/admin/analytics/geography"),
         fetchAdmin<EngagementData>("/admin/analytics/engagement"),
         fetchAdmin<FeatureData>("/admin/analytics/features"),
-        fetchAdmin<Incident[]>("/admin/analytics/incidents"),
         fetchAdmin<LoadTest[]>("/admin/analytics/load-tests"),
       ]);
       setOverview(o);
-      setGeo(g);
       setEngagement(e);
       setFeatures(f);
-      setIncidents(i);
       setLoadTests(l);
       setIsLoading(false);
     }
@@ -216,22 +192,14 @@ export default function AdminAnalyticsPage() {
       </div>
 
       <Tabs defaultValue="engagement" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="engagement">
             <Activity className="mr-1.5 size-3.5" />
-            Engagement
-          </TabsTrigger>
-          <TabsTrigger value="geography">
-            <Globe className="mr-1.5 size-3.5" />
-            Geography
+            Traffic
           </TabsTrigger>
           <TabsTrigger value="features">
             <Search className="mr-1.5 size-3.5" />
-            Features
-          </TabsTrigger>
-          <TabsTrigger value="incidents">
-            <AlertTriangle className="mr-1.5 size-3.5" />
-            Incidents
+            Usage
           </TabsTrigger>
           <TabsTrigger value="load-tests">
             <Gauge className="mr-1.5 size-3.5" />
@@ -300,46 +268,7 @@ export default function AdminAnalyticsPage() {
           </div>
         </TabsContent>
 
-        {/* Geography Tab */}
-        <TabsContent value="geography">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Users by Country</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs font-medium uppercase text-muted-foreground">
-                  <span>Country</span>
-                  <div className="flex gap-8">
-                    <span>Sessions</span>
-                    <span>Page Views</span>
-                  </div>
-                </div>
-                {geo?.map((row) => (
-                  <div
-                    key={row.country}
-                    className="flex items-center justify-between text-sm"
-                  >
-                    <span className="font-medium">{row.country}</span>
-                    <div className="flex gap-12">
-                      <span>{row.sessions}</span>
-                      <span className="text-muted-foreground">
-                        {row.page_views}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-                {(!geo || geo.length === 0) && (
-                  <p className="text-sm text-muted-foreground">
-                    No geography data yet
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Features Tab */}
+        {/* Usage Tab */}
         <TabsContent value="features">
           <div className="grid gap-4 lg:grid-cols-3">
             <Card>
@@ -427,69 +356,6 @@ export default function AdminAnalyticsPage() {
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
-
-        {/* Incidents Tab */}
-        <TabsContent value="incidents">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Recent Incidents</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {incidents?.map((incident) => (
-                  <div
-                    key={incident.id}
-                    className="rounded-lg border p-4"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                            incident.severity === "critical"
-                              ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                          }`}
-                        >
-                          {incident.severity}
-                        </span>
-                        <span className="font-medium">
-                          {incident.metric_name}
-                        </span>
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(incident.triggered_at).toLocaleString()}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {incident.auto_description}
-                    </p>
-                    <div className="mt-2 flex gap-4 text-xs text-muted-foreground">
-                      <span>
-                        Status:{" "}
-                        {incident.resolved_at ? (
-                          <span className="text-green-600">Resolved</span>
-                        ) : (
-                          <span className="text-red-600">Active</span>
-                        )}
-                      </span>
-                      {incident.duration_seconds && (
-                        <span>Duration: {incident.duration_seconds}s</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {(!incidents || incidents.length === 0) && (
-                  <div className="flex flex-col items-center py-8 text-center">
-                    <Calendar className="mb-2 size-8 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">
-                      No incidents recorded
-                    </p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         {/* Load Tests Tab */}
