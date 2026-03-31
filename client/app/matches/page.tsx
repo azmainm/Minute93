@@ -110,7 +110,7 @@ export default function MatchesPage() {
           <div className="flex flex-wrap items-center gap-3">
             <LeagueSelector value={leagueId} onChange={setLeagueId} />
             {showSeasonSelector && (
-              <SeasonSelector value={season} onChange={setSeason} />
+              <SeasonSelector value={season} onChange={setSeason} leagueId={leagueId} />
             )}
           </div>
         </div>

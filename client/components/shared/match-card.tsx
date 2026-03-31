@@ -61,6 +61,20 @@ export function MatchCard({ match, compact }: MatchCardProps) {
         <CardContent className={cn("p-4", compact && "p-3")}>
           {/* Status & Meta Row */}
           <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {match.league?.logo_url && (
+                <Image
+                  src={match.league.logo_url}
+                  alt={match.league.name}
+                  width={16}
+                  height={16}
+                  className="size-4 object-contain"
+                />
+              )}
+              {match.league?.name && (
+                <span className="text-xs text-muted-foreground">{match.league.name}</span>
+              )}
+            </div>
             <Badge
               variant="outline"
               className={cn(
@@ -73,9 +87,6 @@ export function MatchCard({ match, compact }: MatchCardProps) {
               {isLive && <span className="mr-1.5 inline-block size-1.5 rounded-full bg-current" />}
               {statusLabel(match.status)}
             </Badge>
-            {match.round && (
-              <span className="text-xs text-muted-foreground">{match.round}</span>
-            )}
           </div>
 
           {/* Teams & Score */}

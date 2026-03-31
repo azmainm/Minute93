@@ -58,7 +58,7 @@ export default function StandingsPage() {
 
       <div className="mb-6 flex flex-wrap items-center justify-end gap-3">
         <LeagueSelector value={leagueId} onChange={setLeagueId} />
-        <SeasonSelector value={season} onChange={setSeason} />
+        <SeasonSelector value={season} onChange={setSeason} leagueId={leagueId} />
       </div>
 
       {loading ? (

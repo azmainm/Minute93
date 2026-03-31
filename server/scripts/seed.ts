@@ -32,7 +32,8 @@ const pool = new pg.Pool({
   ssl: isRemote ? { rejectUnauthorized: false } : false,
 });
 
-// Rate limiting: API-Football free tier = 100 req/day
+// Rate limiting: API-Football Pro tier = 7500 req/day
+const MAX_REQUESTS = Number(process.env.API_REQUEST_LIMIT || '7000');
 let requestCount = 0;
 
 async function apiFetch<T>(endpoint: string, params: Record<string, string | number> = {}): Promise<T[]> {
@@ -61,8 +62,8 @@ async function apiFetch<T>(endpoint: string, params: Record<string, string | num
     }
   }
 
-  // Respect rate limits: 10 requests/minute on free tier
-  await new Promise((r) => setTimeout(r, 6500));
+  // Respect rate limits: Pro tier allows 300 req/min
+  await new Promise((r) => setTimeout(r, 250));
 
   return json.response;
 }
@@ -158,10 +159,8 @@ async function seedPlayers() {
       break;
     }
 
-    // Check budget: free tier = 100 req/day
-    if (requestCount >= 95) {
-      console.warn('\n⚠ Approaching API request limit (95/100). Stopping player seeding.');
-      console.warn('  Run the script again tomorrow to continue seeding remaining teams.');
+    if (requestCount >= MAX_REQUESTS) {
+      console.warn(`\n⚠ Approaching API request limit (${requestCount}/${MAX_REQUESTS}). Stopping player seeding.`);
       break;
     }
   }
@@ -243,11 +242,10 @@ async function main() {
     await seedFixtures();
 
     // Players use the most API calls — seed last
-    if (requestCount < 90) {
+    if (requestCount < MAX_REQUESTS - 100) {
       await seedPlayers();
     } else {
       console.log('\n⚠ Skipping player seeding to stay within API limits.');
-      console.log('  Run the script again tomorrow to seed players.');
     }
 
     console.log(`\n✓ Seeding complete. Total API requests: ${requestCount}`);
