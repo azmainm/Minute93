@@ -207,35 +207,40 @@ export default function AdminAnalyticsPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Engagement Tab */}
+        {/* Traffic Tab */}
         <TabsContent value="engagement">
           <div className="grid gap-4 lg:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Daily Activity (30 days)</CardTitle>
+                <CardTitle className="text-base">Daily Traffic</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
+                <div className="space-y-1">
+                  <div className="mb-2 flex items-center justify-between text-xs font-medium uppercase text-muted-foreground">
+                    <span>Date</span>
+                    <div className="flex gap-6">
+                      <span>Sessions</span>
+                      <span>Views</span>
+                    </div>
+                  </div>
                   {engagement?.dailyActiveUsers.slice(0, 14).map((day) => (
                     <div
                       key={day.date}
-                      className="flex items-center justify-between text-sm"
+                      className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-muted/50"
                     >
                       <span className="text-muted-foreground">
-                        {new Date(day.date).toLocaleDateString()}
+                        {new Date(day.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                       </span>
-                      <div className="flex gap-4">
-                        <span>{day.sessions} sessions</span>
-                        <span className="text-muted-foreground">
-                          {day.page_views} views
-                        </span>
+                      <div className="flex gap-8">
+                        <span className="font-medium tabular-nums">{Number(day.sessions).toLocaleString()}</span>
+                        <span className="tabular-nums text-muted-foreground">{Number(day.page_views).toLocaleString()}</span>
                       </div>
                     </div>
                   ))}
                   {(!engagement?.dailyActiveUsers ||
                     engagement.dailyActiveUsers.length === 0) && (
-                    <p className="text-sm text-muted-foreground">
-                      No engagement data yet
+                    <p className="py-4 text-center text-sm text-muted-foreground">
+                      No traffic data yet
                     </p>
                   )}
                 </div>
@@ -243,22 +248,25 @@ export default function AdminAnalyticsPage() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Popular Pages</CardTitle>
+                <CardTitle className="text-base">Popular Pages (7 days)</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {engagement?.popularPages.map((page) => (
+                <div className="space-y-1">
+                  {engagement?.popularPages.map((page, i) => (
                     <div
                       key={page.path}
-                      className="flex items-center justify-between text-sm"
+                      className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-muted/50"
                     >
-                      <span className="font-mono text-xs">{page.path}</span>
-                      <span className="font-medium">{page.views}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 text-xs text-muted-foreground">{i + 1}.</span>
+                        <span className="font-mono text-xs">{page.path}</span>
+                      </div>
+                      <span className="font-medium tabular-nums">{Number(page.views).toLocaleString()}</span>
                     </div>
                   ))}
                   {(!engagement?.popularPages ||
                     engagement.popularPages.length === 0) && (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="py-4 text-center text-sm text-muted-foreground">
                       No page view data yet
                     </p>
                   )}
