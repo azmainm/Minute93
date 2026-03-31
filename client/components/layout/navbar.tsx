@@ -11,7 +11,6 @@ import {
   Users,
   BarChart3,
   Menu,
-  Zap,
   Info,
   LogIn,
   LogOut,
@@ -25,7 +24,6 @@ import { useAuth } from "@/lib/auth-context";
 const navLinks = [
   { href: "/matches", label: "Matches", icon: CalendarDays },
   { href: "/standings", label: "Standings", icon: Trophy },
-  { href: "/top-scorers", label: "Top Scorers", icon: Zap },
   { href: "/teams", label: "Teams", icon: Users },
   { href: "/search", label: "Search", icon: Search },
 ];

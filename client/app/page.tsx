@@ -28,8 +28,8 @@ const features = [
   },
   {
     icon: BarChart3,
-    title: "Top Scorers",
-    description: "Tournament-wide goal rankings, refreshed in real-time.",
+    title: "Match Stats",
+    description: "Detailed match timelines with goals, cards, and substitutions.",
   },
   {
     icon: Search,

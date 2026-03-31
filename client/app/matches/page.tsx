@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { CalendarDays, Radio, Trophy, Clock } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { MatchCard } from "@/components/shared/match-card";
 import { MatchCardSkeleton } from "@/components/shared/match-card-skeleton";
@@ -11,6 +11,7 @@ import { ErrorMessage } from "@/components/shared/error-message";
 import { SeasonSelector } from "@/components/shared/season-selector";
 import { LeagueSelector } from "@/components/shared/league-selector";
 import { getLiveMatches, getMatches } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import type { Match, PaginatedData } from "@/lib/types";
 
 type TabValue = "live" | "results" | "upcoming";
@@ -92,22 +93,46 @@ export default function MatchesPage() {
       />
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as TabValue)}>
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="live" className="gap-1.5">
-              <Radio className="size-3.5" />
-              Live
-            </TabsTrigger>
-            <TabsTrigger value="results" className="gap-1.5">
-              <Trophy className="size-3.5" />
-              Results
-            </TabsTrigger>
-            <TabsTrigger value="upcoming" className="gap-1.5">
-              <Clock className="size-3.5" />
-              Upcoming
-            </TabsTrigger>
-          </TabsList>
-          <div className="flex flex-wrap items-center gap-3">
+        {/* Tab Selector */}
+        <div className="mb-6 flex flex-col gap-4">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            {[
+              { value: "live" as TabValue, icon: Radio, label: "Live", sublabel: "Now playing", color: "primary" },
+              { value: "results" as TabValue, icon: Trophy, label: "Results", sublabel: "Full time", color: "emerald" },
+              { value: "upcoming" as TabValue, icon: Clock, label: "Upcoming", sublabel: "Scheduled", color: "blue" },
+            ].map(({ value, icon: Icon, label, sublabel }) => (
+              <button
+                key={value}
+                onClick={() => setTab(value)}
+                className={cn(
+                  "group relative flex flex-col items-center gap-1.5 rounded-xl border-2 px-3 py-4 text-center transition-all duration-200 sm:flex-row sm:gap-3 sm:px-5 sm:py-4 sm:text-left",
+                  tab === value
+                    ? "border-primary bg-primary/5 shadow-sm"
+                    : "border-transparent bg-muted/50 hover:border-muted-foreground/20 hover:bg-muted",
+                )}
+              >
+                <div className={cn(
+                  "flex size-10 items-center justify-center rounded-lg transition-colors",
+                  tab === value ? "bg-primary/15 text-primary" : "bg-background text-muted-foreground group-hover:text-foreground",
+                )}>
+                  <Icon className="size-5" />
+                </div>
+                <div>
+                  <div className={cn(
+                    "text-sm font-semibold sm:text-base",
+                    tab === value ? "text-primary" : "text-foreground",
+                  )}>
+                    {label}
+                  </div>
+                  <div className="hidden text-xs text-muted-foreground sm:block">{sublabel}</div>
+                </div>
+                {value === "live" && tab === value && (
+                  <span className="absolute right-2 top-2 size-2 rounded-full bg-primary animate-pulse sm:right-3 sm:top-3" />
+                )}
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-wrap items-center justify-end gap-3">
             <LeagueSelector value={leagueId} onChange={setLeagueId} />
             {showSeasonSelector && (
               <SeasonSelector value={season} onChange={setSeason} leagueId={leagueId} />

@@ -9,7 +9,6 @@ const footerLinks = [
     links: [
       { label: "Live Matches", href: "/matches" },
       { label: "Standings", href: "/standings" },
-      { label: "Top Scorers", href: "/top-scorers" },
       { label: "Teams", href: "/teams" },
     ],
   },
