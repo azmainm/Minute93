@@ -28,7 +28,7 @@ export default function StandingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [season, setSeason] = useState("2025");
-  const [leagueId, setLeagueId] = useState("all");
+  const [leagueId, setLeagueId] = useState("1");
 
   useEffect(() => {
     async function fetchStandings() {
