@@ -20,13 +20,15 @@ export class LeagueService {
 
   async getStandings(leagueId?: number, season?: number): Promise<unknown[]> {
     const query = `
-      SELECT id, name, code, logo_url, group_name, season,
-             played, wins, draws, losses,
-             goals_for, goals_against, goal_difference, points
-      FROM mv_standings
-      WHERE ($1::int IS NULL OR league_id = $1)
-        AND ($2::int IS NULL OR season = $2)
-      ORDER BY group_name ASC NULLS LAST, points DESC, goal_difference DESC
+      SELECT t.id, t.name, t.code, t.logo_url,
+             s.group_name, s.season, s.rank,
+             s.played, s.wins, s.draws, s.losses,
+             s.goals_for, s.goals_against, s.goal_difference, s.points, s.form
+      FROM standings s
+      INNER JOIN teams t ON s.team_id = t.id
+      WHERE ($1::int IS NULL OR s.league_id = $1)
+        AND ($2::int IS NULL OR s.season = $2)
+      ORDER BY s.group_name ASC NULLS LAST, s.rank ASC
     `;
 
     return this.dataSource.query(query, [leagueId || null, season || null]);

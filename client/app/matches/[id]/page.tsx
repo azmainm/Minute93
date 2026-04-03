@@ -24,14 +24,22 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 const LIVE_STATUSES = ["live", "extra_time", "penalties", "halftime"];
 
-function eventIcon(type: string) {
+function isRedCard(detail: Record<string, unknown> | null): boolean {
+  if (!detail) return false;
+  const d = String(detail.detail || "").toLowerCase();
+  return d.includes("red");
+}
+
+function eventIcon(type: string, detail?: Record<string, unknown> | null) {
   switch (type) {
     case "goal":
     case "own_goal":
     case "penalty":
       return <CircleDot className="size-4 text-primary" />;
     case "card":
-      return <RectangleVertical className="size-4 text-amber-500" />;
+      return isRedCard(detail ?? null)
+        ? <RectangleVertical className="size-4 text-red-600 fill-red-600" />
+        : <RectangleVertical className="size-4 text-amber-500 fill-amber-500" />;
     case "substitution":
       return <ArrowRightLeft className="size-4 text-blue-500" />;
     case "var":
@@ -41,13 +49,15 @@ function eventIcon(type: string) {
   }
 }
 
-function eventLabel(type: string) {
+function eventLabel(type: string, detail?: Record<string, unknown> | null) {
+  if (type === "card") {
+    return isRedCard(detail ?? null) ? "Red Card" : "Yellow Card";
+  }
   const map: Record<string, string> = {
     goal: "Goal",
     own_goal: "Own Goal",
     penalty: "Penalty",
     missed_penalty: "Missed Penalty",
-    card: "Card",
     substitution: "Substitution",
     var: "VAR Review",
   };
@@ -249,10 +259,10 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
                 <div className="flex w-10 items-center justify-center text-sm font-mono font-bold text-muted-foreground">
                   {event.minute !== null ? `${event.minute}'` : "—"}
                 </div>
-                <div className="flex-shrink-0">{eventIcon(event.event_type)}</div>
+                <div className="flex-shrink-0">{eventIcon(event.event_type, event.detail)}</div>
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-medium">{event.player_name || "Unknown"}</div>
-                  <div className="text-xs text-muted-foreground">{eventLabel(event.event_type)}</div>
+                  <div className="text-xs text-muted-foreground">{eventLabel(event.event_type, event.detail)}</div>
                 </div>
                 {event.team && (
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
