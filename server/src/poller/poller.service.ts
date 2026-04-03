@@ -169,7 +169,7 @@ export class PollerService implements OnModuleInit, OnModuleDestroy {
     const topic = this.kafkaService.getTopic();
 
     // Always send a status update
-    const statusEventId = `${matchApiId}:status:${status}:${fixture.goals.home}-${fixture.goals.away}`;
+    const statusEventId = `${matchApiId}:status:${status}:${fixture.goals.home}-${fixture.goals.away}:${fixture.fixture.status.elapsed}`;
     const isStatusDuplicate = await this.redisService.isDuplicate(DEDUP_KEY, statusEventId);
     await this.redisService.setExpire(DEDUP_KEY, DEDUP_TTL);
 
