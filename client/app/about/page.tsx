@@ -122,13 +122,10 @@ export default function AboutPage() {
         <div className="mx-auto max-w-2xl">
           <Badge variant="outline" className="mb-4 gap-1.5 text-xs"><GitFork className="size-3" />The Builder</Badge>
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Built by a football enthusiast
+            For the love of the game
           </h2>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            I&apos;m Azmain, a software engineer and lifelong Real Madrid fan. Minute93 is a full-stack distributed systems project wrapped in something I genuinely care about.
-          </p>
-          <p className="mt-4 text-muted-foreground leading-relaxed">
-            This isn&apos;t a toy demo. It&apos;s a full distributed system with event-driven architecture, real-time data pipelines, and production-grade infrastructure, designed to handle live football data across the Champions League, Premier League, and La Liga.
+            Minute93 is a full distributed system with event-driven architecture, real-time data pipelines, and production-grade infrastructure, designed to handle live football data across the Champions League, Premier League, and La Liga.
           </p>
           <p className="mt-4 text-muted-foreground leading-relaxed">
             The goal: build something real, deploy it to production, stress-test it with live data, and write about the engineering decisions honestly. What worked, what didn&apos;t, and why.
