@@ -91,7 +91,13 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
       setLoading(true);
       setError(null);
       try {
-        setMatch(await getMatch(Number(id)));
+        const data = await getMatch(Number(id));
+        setMatch(data);
+        if (LIVE_STATUSES.includes(data.status)) {
+          const kickoff = new Date(data.kickoff_at).getTime();
+          const elapsed = Math.floor((Date.now() - kickoff) / 60000);
+          if (elapsed > 0 && elapsed <= 120) setLiveMinute(elapsed);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load match");
       } finally {
@@ -101,6 +107,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
     fetchMatch();
   }, [id]);
 
+  // SSE for real-time updates
   useEffect(() => {
     if (!match?.id || eventSourceRef.current) return;
     if (!LIVE_STATUSES.includes(match.status)) return;
@@ -137,9 +144,32 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
       es.close();
       eventSourceRef.current = null;
     };
-    // Connect once per match — score/status updates arrive via SSE, not re-renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [match?.id]);
+
+  // Fallback polling — keeps minute/score fresh if SSE is unreliable
+  useEffect(() => {
+    if (!match?.id) return;
+    if (!LIVE_STATUSES.includes(match.status)) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const fresh = await getMatch(Number(id));
+        setMatch(fresh);
+        if (fresh.updated_at !== match.updated_at) {
+          const kickoff = new Date(fresh.kickoff_at).getTime();
+          const now = Date.now();
+          const elapsed = Math.floor((now - kickoff) / 60000);
+          if (elapsed > 0 && elapsed <= 120) setLiveMinute(elapsed);
+        }
+      } catch {
+        // Non-critical; next poll will retry
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [match?.id, match?.status]);
 
   if (loading) {
     return (
@@ -159,7 +189,10 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
   }
 
   const isLive = LIVE_STATUSES.includes(match.status);
-  const events = (match.events || []).sort((a, b) => (a.minute ?? 0) - (b.minute ?? 0));
+  const VISIBLE_EVENTS = ["goal", "own_goal", "penalty", "missed_penalty", "card"];
+  const events = (match.events || [])
+    .filter((e) => VISIBLE_EVENTS.includes(e.event_type))
+    .sort((a, b) => (a.minute ?? 0) - (b.minute ?? 0));
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
