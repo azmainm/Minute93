@@ -91,13 +91,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
       setLoading(true);
       setError(null);
       try {
-        const data = await getMatch(Number(id));
-        setMatch(data);
-        if (LIVE_STATUSES.includes(data.status)) {
-          const kickoff = new Date(data.kickoff_at).getTime();
-          const elapsed = Math.floor((Date.now() - kickoff) / 60000);
-          if (elapsed > 0 && elapsed <= 120) setLiveMinute(elapsed);
-        }
+        setMatch(await getMatch(Number(id)));
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load match");
       } finally {
@@ -147,21 +141,14 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [match?.id]);
 
-  // Fallback polling — keeps minute/score fresh if SSE is unreliable
+  // Fallback polling — keeps score/events fresh if SSE is unreliable
   useEffect(() => {
     if (!match?.id) return;
     if (!LIVE_STATUSES.includes(match.status)) return;
 
     const interval = setInterval(async () => {
       try {
-        const fresh = await getMatch(Number(id));
-        setMatch(fresh);
-        if (fresh.updated_at !== match.updated_at) {
-          const kickoff = new Date(fresh.kickoff_at).getTime();
-          const now = Date.now();
-          const elapsed = Math.floor((now - kickoff) / 60000);
-          if (elapsed > 0 && elapsed <= 120) setLiveMinute(elapsed);
-        }
+        setMatch(await getMatch(Number(id)));
       } catch {
         // Non-critical; next poll will retry
       }
