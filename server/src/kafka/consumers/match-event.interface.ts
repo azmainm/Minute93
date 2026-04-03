@@ -10,4 +10,11 @@ export interface MatchEventPayload {
   home_score: number | null;
   away_score: number | null;
   match_status: string;
+  /** Fixture metadata — included on status_update events for auto-creation of unseeded matches */
+  league_api_id?: number;
+  home_team_api_id?: number;
+  away_team_api_id?: number;
+  kickoff_at?: string;
+  venue?: string | null;
+  season?: number;
 }

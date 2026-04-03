@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Match } from './entities/match.entity.js';
 import { MatchEvent } from './entities/match-event.entity.js';
 import { MatchLineup } from './entities/match-lineup.entity.js';
@@ -63,7 +63,7 @@ export class MatchService {
 
   async findLive(): Promise<Match[]> {
     return this.matchRepository.find({
-      where: { status: 'live' },
+      where: { status: In(['live', 'halftime', 'extra_time', 'penalties']) },
       relations: ['home_team', 'away_team', 'league'],
       order: { kickoff_at: 'ASC' },
     });

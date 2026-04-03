@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useRef, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -11,20 +11,18 @@ import {
   RectangleVertical,
   ArrowRightLeft,
   ShieldAlert,
-  Users,
-  BarChart3,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/shared/error-message";
-import { EmptyState } from "@/components/shared/empty-state";
 import { getMatch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { MatchDetail } from "@/lib/types";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
+const LIVE_STATUSES = ["live", "extra_time", "penalties", "halftime"];
 
 function eventIcon(type: string) {
   switch (type) {
@@ -75,32 +73,69 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
   const [match, setMatch] = useState<MatchDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [liveMinute, setLiveMinute] = useState<number | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
-    async function fetchAll() {
+    async function fetchMatch() {
       setLoading(true);
       setError(null);
       try {
-        const data = await getMatch(Number(id));
-        setMatch(data);
+        setMatch(await getMatch(Number(id)));
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load match");
       } finally {
         setLoading(false);
       }
     }
-    fetchAll();
+    fetchMatch();
   }, [id]);
+
+  useEffect(() => {
+    if (!match?.id || eventSourceRef.current) return;
+    if (!LIVE_STATUSES.includes(match.status)) return;
+
+    const es = new EventSource(`${API_BASE}/matches/${match.id}/stream`);
+    eventSourceRef.current = es;
+
+    es.onmessage = (event) => {
+      try {
+        let data = JSON.parse(event.data);
+        if (typeof data === "string") data = JSON.parse(data);
+
+        if (data.minute != null) setLiveMinute(data.minute);
+
+        setMatch((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            home_score: data.home_score ?? prev.home_score,
+            away_score: data.away_score ?? prev.away_score,
+            status: data.match_status || prev.status,
+          };
+        });
+
+        if (data.event_type && data.event_type !== "status_update") {
+          getMatch(match.id).then(setMatch).catch(() => {});
+        }
+      } catch {
+        // SSE parse errors are non-critical; stream auto-recovers
+      }
+    };
+
+    return () => {
+      es.close();
+      eventSourceRef.current = null;
+    };
+    // Connect once per match — score/status updates arrive via SSE, not re-renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [match?.id]);
 
   if (loading) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <Skeleton className="mb-6 h-5 w-24" />
         <Skeleton className="h-48 w-full rounded-xl" />
-        <div className="mt-6 space-y-3">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-32 w-full" />
-        </div>
       </div>
     );
   }
@@ -113,17 +148,11 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  const isLive = ["live", "extra_time", "penalties", "halftime"].includes(match.status);
-  const isUpcoming = ["scheduled", "not_started"].includes(match.status);
-  const events = match.events || [];
-  const lineups = match.lineups || [];
-  const homeLineup = lineups.filter((l) => l.team_id === match.home_team_id);
-  const awayLineup = lineups.filter((l) => l.team_id === match.away_team_id);
-  const hasEventData = events.length > 0 || lineups.length > 0;
+  const isLive = LIVE_STATUSES.includes(match.status);
+  const events = (match.events || []).sort((a, b) => (a.minute ?? 0) - (b.minute ?? 0));
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Back Link */}
       <Link href="/matches" className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
         <ArrowLeft className="size-4" />
         Back to Matches
@@ -135,8 +164,8 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
           <div className="h-1 bg-gradient-to-r from-primary/0 via-primary to-primary/0" />
         )}
         <CardContent className="p-6 sm:p-8">
-          {/* Status */}
-          <div className="mb-6 flex items-center justify-center">
+          {/* Status + Live Minute */}
+          <div className="mb-6 flex flex-col items-center gap-1.5">
             <Badge
               variant="outline"
               className={cn(
@@ -147,11 +176,15 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
               {isLive && <span className="mr-2 inline-block size-2 rounded-full bg-current" />}
               {statusLabel(match.status)}
             </Badge>
+            {isLive && liveMinute != null && (
+              <span className="font-mono text-xl font-bold text-primary">
+                {liveMinute}&apos;
+              </span>
+            )}
           </div>
 
           {/* Teams & Score */}
           <div className="flex items-center justify-between gap-4">
-            {/* Home */}
             <Link href={`/teams/${match.home_team_id}`} className="flex flex-1 flex-col items-center gap-3 transition-opacity hover:opacity-80">
               {match.home_team?.logo_url ? (
                 <Image src={match.home_team.logo_url} alt={match.home_team.name} width={56} height={56} className="size-14 object-contain" />
@@ -161,7 +194,6 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
               <span className="text-center text-sm font-semibold sm:text-base">{match.home_team?.name || "TBD"}</span>
             </Link>
 
-            {/* Score */}
             <div className={cn(
               "flex items-center gap-2 rounded-xl px-5 py-3 font-mono text-3xl font-extrabold sm:text-4xl",
               isLive ? "bg-primary/10 text-primary" : "bg-muted",
@@ -177,7 +209,6 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
               )}
             </div>
 
-            {/* Away */}
             <Link href={`/teams/${match.away_team_id}`} className="flex flex-1 flex-col items-center gap-3 transition-opacity hover:opacity-80">
               {match.away_team?.logo_url ? (
                 <Image src={match.away_team.logo_url} alt={match.away_team.name} width={56} height={56} className="size-14 object-contain" />
@@ -209,121 +240,32 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
         </CardContent>
       </Card>
 
-      {/* Tabs: Events / Lineups — only show when there's data or match is live */}
-      {(hasEventData || isLive) && (
-        <Tabs defaultValue="events" className="mt-6">
-          <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="events" className="gap-1.5">
-              <BarChart3 className="size-3.5" />
-              Timeline
-            </TabsTrigger>
-            <TabsTrigger value="lineups" className="gap-1.5">
-              <Users className="size-3.5" />
-              Lineups
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Events Timeline */}
-          <TabsContent value="events">
-            {events.length === 0 ? (
-              <EmptyState
-                icon={BarChart3}
-                title="No events yet"
-                description="Match events will appear here as they happen."
-              />
-            ) : (
-              <Card>
-                <CardContent className="divide-y p-0">
-                  {events
-                    .sort((a, b) => (a.minute ?? 0) - (b.minute ?? 0))
-                    .map((event) => (
-                      <div key={event.id} className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/50">
-                        <div className="flex w-10 items-center justify-center text-sm font-mono font-bold text-muted-foreground">
-                          {event.minute !== null ? `${event.minute}'` : "—"}
-                        </div>
-                        <div className="flex-shrink-0">{eventIcon(event.event_type)}</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium">{event.player_name || "Unknown"}</div>
-                          <div className="text-xs text-muted-foreground">{eventLabel(event.event_type)}</div>
-                        </div>
-                        {event.team && (
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            {event.team.logo_url && (
-                              <Image src={event.team.logo_url} alt={event.team.name} width={16} height={16} className="size-4 object-contain" />
-                            )}
-                            <span className="hidden sm:inline">{event.team.name}</span>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          {/* Lineups */}
-          <TabsContent value="lineups">
-            {lineups.length === 0 ? (
-              <EmptyState
-                icon={Users}
-                title="No lineups available"
-                description="Lineups will be added when they are announced."
-              />
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {[
-                  { team: match.home_team, players: homeLineup },
-                  { team: match.away_team, players: awayLineup },
-                ].map(({ team, players }) => (
-                  <Card key={team?.id || "unknown"}>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="flex items-center gap-2 text-sm">
-                        {team?.logo_url && (
-                          <Image src={team.logo_url} alt={team.name} width={20} height={20} className="size-5 object-contain" />
-                        )}
-                        {team?.name || "TBD"}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Starting XI
-                      </div>
-                      <div className="space-y-1">
-                        {players.filter((p) => p.is_starter).map((p) => (
-                          <div key={p.id} className="flex items-center justify-between py-1 text-sm">
-                            <span>{p.player_name}</span>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              {p.position && <span>{p.position}</span>}
-                              {p.player_number && <Badge variant="outline" className="text-xs">{p.player_number}</Badge>}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      {players.some((p) => !p.is_starter) && (
-                        <>
-                          <Separator className="my-3" />
-                          <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                            Substitutes
-                          </div>
-                          <div className="space-y-1">
-                            {players.filter((p) => !p.is_starter).map((p) => (
-                              <div key={p.id} className="flex items-center justify-between py-1 text-sm text-muted-foreground">
-                                <span>{p.player_name}</span>
-                                <div className="flex items-center gap-2 text-xs">
-                                  {p.player_number && <Badge variant="outline" className="text-xs">{p.player_number}</Badge>}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
+      {/* Match Events */}
+      {events.length > 0 && (
+        <Card className="mt-6">
+          <CardContent className="divide-y p-0">
+            {events.map((event) => (
+              <div key={event.id} className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/50">
+                <div className="flex w-10 items-center justify-center text-sm font-mono font-bold text-muted-foreground">
+                  {event.minute !== null ? `${event.minute}'` : "—"}
+                </div>
+                <div className="flex-shrink-0">{eventIcon(event.event_type)}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-medium">{event.player_name || "Unknown"}</div>
+                  <div className="text-xs text-muted-foreground">{eventLabel(event.event_type)}</div>
+                </div>
+                {event.team && (
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    {event.team.logo_url && (
+                      <Image src={event.team.logo_url} alt={event.team.name} width={16} height={16} className="size-4 object-contain" />
+                    )}
+                    <span className="hidden sm:inline">{event.team.name}</span>
+                  </div>
+                )}
               </div>
-            )}
-          </TabsContent>
-        </Tabs>
+            ))}
+          </CardContent>
+        </Card>
       )}
     </div>
   );

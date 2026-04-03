@@ -7,6 +7,8 @@ import type { MatchEventPayload } from '../kafka/consumers/match-event.interface
 interface ApiFixture {
   fixture: {
     id: number;
+    date: string;
+    venue: { name: string } | null;
     status: { short: string; elapsed: number | null };
   };
   league: { id: number };
@@ -182,6 +184,12 @@ export class PollerService implements OnModuleInit, OnModuleDestroy {
         home_score: fixture.goals.home,
         away_score: fixture.goals.away,
         match_status: status,
+        league_api_id: fixture.league.id,
+        home_team_api_id: fixture.teams.home.id,
+        away_team_api_id: fixture.teams.away.id,
+        kickoff_at: fixture.fixture.date,
+        venue: fixture.fixture.venue?.name || null,
+        season: Number(this.pollSeason),
       };
 
       await this.kafkaService.produce(topic, {

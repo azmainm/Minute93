@@ -14,9 +14,10 @@ import type { League } from "@/lib/types";
 interface LeagueSelectorProps {
   value: string;
   onChange: (leagueId: string) => void;
+  showAllOption?: boolean;
 }
 
-export function LeagueSelector({ value, onChange }: LeagueSelectorProps) {
+export function LeagueSelector({ value, onChange, showAllOption = true }: LeagueSelectorProps) {
   const [leagues, setLeagues] = useState<League[]>([]);
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export function LeagueSelector({ value, onChange }: LeagueSelectorProps) {
         <SelectValue placeholder="League" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">All Leagues</SelectItem>
+        {showAllOption && <SelectItem value="all">All Leagues</SelectItem>}
         {leagues.map((league) => (
           <SelectItem key={league.id} value={String(league.id)}>
             {league.name}

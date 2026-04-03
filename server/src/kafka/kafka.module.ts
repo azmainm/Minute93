@@ -8,10 +8,11 @@ import { SsePublisherConsumer } from './consumers/sse-publisher.consumer.js';
 import { Match } from '../match/entities/match.entity.js';
 import { MatchEvent } from '../match/entities/match-event.entity.js';
 import { Team } from '../team/entities/team.entity.js';
+import { League } from '../league/entities/league.entity.js';
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([Match, MatchEvent, Team])],
+  imports: [TypeOrmModule.forFeature([Match, MatchEvent, Team, League])],
   providers: [
     KafkaService,
     CacheUpdaterConsumer,
