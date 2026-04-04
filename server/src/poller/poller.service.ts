@@ -50,6 +50,7 @@ export class PollerService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PollerService.name);
   private pollTimer: ReturnType<typeof setTimeout> | null = null;
   private isPolling = false;
+  private previouslyLiveIds = new Set<number>();
 
   private readonly apiKey: string;
   private readonly apiBase: string;
@@ -152,6 +153,16 @@ export class PollerService implements OnModuleInit, OnModuleDestroy {
     const json = await res.json() as { response: ApiFixture[] };
     const fixtures = json.response || [];
 
+    const currentLiveIds = new Set(fixtures.map((f) => f.fixture.id));
+
+    // Detect matches that were live but disappeared (likely finished)
+    const vanishedIds = [...this.previouslyLiveIds].filter((id) => !currentLiveIds.has(id));
+    if (vanishedIds.length > 0) {
+      await this.resolveVanishedMatches(vanishedIds);
+    }
+
+    this.previouslyLiveIds = currentLiveIds;
+
     if (fixtures.length === 0) return false;
 
     this.logger.debug(`League ${leagueId}: ${fixtures.length} live fixture(s)`);
@@ -161,6 +172,38 @@ export class PollerService implements OnModuleInit, OnModuleDestroy {
     }
 
     return true;
+  }
+
+  /**
+   * When a match disappears from the live=all response, fetch it by ID
+   * to get the final status (FT, AET, PEN, etc.) and produce a closing event.
+   */
+  private async resolveVanishedMatches(fixtureIds: number[]): Promise<void> {
+    const idsParam = fixtureIds.join('-');
+    const url = new URL('/fixtures', this.apiBase);
+    url.searchParams.set('ids', idsParam);
+
+    try {
+      const res = await fetch(url.toString(), {
+        headers: { 'x-apisports-key': this.apiKey },
+      });
+
+      if (!res.ok) {
+        this.logger.warn(`Failed to resolve vanished matches [${idsParam}]: ${res.status}`);
+        return;
+      }
+
+      const json = await res.json() as { response: ApiFixture[] };
+      for (const fixture of json.response || []) {
+        const status = STATUS_MAP[fixture.fixture.status.short] || 'finished';
+        this.logger.log(
+          `Match ${fixture.fixture.id} vanished from live feed → status: ${fixture.fixture.status.short} (${status})`,
+        );
+        await this.processFixture(fixture);
+      }
+    } catch (error) {
+      this.logger.error(`Error resolving vanished matches: ${(error as Error).message}`);
+    }
   }
 
   private async processFixture(fixture: ApiFixture) {
