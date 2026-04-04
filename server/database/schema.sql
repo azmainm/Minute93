@@ -64,6 +64,7 @@ CREATE TABLE matches (
   home_score      SMALLINT,
   away_score      SMALLINT,
   status          VARCHAR(20) NOT NULL DEFAULT 'scheduled',
+  minute          SMALLINT,
   season          INTEGER NOT NULL DEFAULT 2025,
   round           VARCHAR(30),
   kickoff_at      TIMESTAMPTZ NOT NULL,

@@ -64,12 +64,15 @@ function eventLabel(type: string, detail?: Record<string, unknown> | null) {
   return map[type] || type;
 }
 
-function statusLabel(status: string) {
+function statusLabel(status: string, minute?: number | null) {
+  if ((status === "live" || status === "extra_time" || status === "penalties") && minute != null) {
+    return `${minute}'`;
+  }
   const map: Record<string, string> = {
     scheduled: "Upcoming",
     live: "LIVE",
-    halftime: "Half Time",
-    finished: "Full Time",
+    halftime: "HT",
+    finished: "FT",
     postponed: "Postponed",
     not_started: "Upcoming",
     extra_time: "Extra Time",
@@ -204,13 +207,8 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
               )}
             >
               {isLive && <span className="mr-2 inline-block size-2 rounded-full bg-current" />}
-              {statusLabel(match.status)}
+              {statusLabel(match.status, liveMinute ?? match.minute)}
             </Badge>
-            {isLive && liveMinute != null && (
-              <span className="font-mono text-xl font-bold text-primary">
-                {liveMinute}&apos;
-              </span>
-            )}
           </div>
 
           {/* Teams & Score */}

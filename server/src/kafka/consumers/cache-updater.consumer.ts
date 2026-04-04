@@ -39,6 +39,7 @@ export class CacheUpdaterConsumer implements OnModuleInit {
       home_score: event.home_score,
       away_score: event.away_score,
       status: event.match_status,
+      minute: event.minute,
     });
     await this.redisService.cacheSet(scoreKey, scoreData, CACHE_TTL_LIVE);
 

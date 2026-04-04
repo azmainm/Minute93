@@ -58,6 +58,7 @@ export class PostgresWriterConsumer implements OnModuleInit {
       home_score: event.home_score,
       away_score: event.away_score,
       status: event.match_status,
+      minute: event.minute,
       updated_at: new Date(),
     });
 

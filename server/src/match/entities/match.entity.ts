@@ -46,6 +46,9 @@ export class Match {
   @Column({ type: 'varchar', length: 20, default: 'scheduled' })
   status: string;
 
+  @Column({ type: 'smallint', nullable: true })
+  minute: number | null;
+
   @Column({ type: 'integer', default: 2024 })
   season: number;
 

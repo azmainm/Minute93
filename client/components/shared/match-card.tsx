@@ -11,12 +11,15 @@ interface MatchCardProps {
   compact?: boolean;
 }
 
-function statusLabel(status: string): string {
+function statusLabel(status: string, minute?: number | null): string {
+  if ((status === "live" || status === "extra_time" || status === "penalties") && minute != null) {
+    return `${minute}'`;
+  }
   const map: Record<string, string> = {
     scheduled: "Upcoming",
     live: "LIVE",
-    halftime: "Half Time",
-    finished: "Full Time",
+    halftime: "HT",
+    finished: "FT",
     postponed: "Postponed",
     cancelled: "Cancelled",
     not_started: "Upcoming",
@@ -85,7 +88,7 @@ export function MatchCard({ match, compact }: MatchCardProps) {
               )}
             >
               {isLive && <span className="mr-1.5 inline-block size-1.5 rounded-full bg-current" />}
-              {statusLabel(match.status)}
+              {statusLabel(match.status, match.minute)}
             </Badge>
           </div>
 
