@@ -1,7 +1,10 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { In, LessThan, Repository } from 'typeorm';
 import { KafkaService } from '../kafka/kafka.service.js';
 import { RedisService } from '../redis/redis.service.js';
+import { Match } from '../match/entities/match.entity.js';
 import type { MatchEventPayload } from '../kafka/consumers/match-event.interface.js';
 
 interface ApiFixture {
@@ -50,7 +53,8 @@ export class PollerService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PollerService.name);
   private pollTimer: ReturnType<typeof setTimeout> | null = null;
   private isPolling = false;
-  private previouslyLiveIds = new Set<number>();
+  /** Per API-Football league id — must not mix leagues or empty `live=all` for league B looks like A's matches vanished */
+  private previouslyLiveByLeague = new Map<number, Set<number>>();
 
   private readonly apiKey: string;
   private readonly apiBase: string;
@@ -63,6 +67,8 @@ export class PollerService implements OnModuleInit, OnModuleDestroy {
     private readonly configService: ConfigService,
     private readonly kafkaService: KafkaService,
     private readonly redisService: RedisService,
+    @InjectRepository(Match)
+    private readonly matchRepository: Repository<Match>,
   ) {
     this.apiKey = this.configService.get<string>('API_FOOTBALL_KEY') || '';
     this.apiBase = this.configService.get<string>('API_FOOTBALL_BASE_URL') || 'https://v3.football.api-sports.io';
@@ -79,6 +85,7 @@ export class PollerService implements OnModuleInit, OnModuleDestroy {
       return;
     }
     this.logger.log(`Poller starting. Leagues: ${this.activeLeagues.join(', ')}`);
+    await this.resolveStaleMatches();
     this.startPolling();
   }
 
@@ -87,6 +94,32 @@ export class PollerService implements OnModuleInit, OnModuleDestroy {
   }
 
   private hasLiveMatches = false;
+
+  /**
+   * On startup, find matches stuck in live/halftime status whose updated_at
+   * is older than 3 hours. Fetch their real status from API-Football and
+   * push corrections through Kafka so the DB and cache get updated.
+   */
+  private async resolveStaleMatches(): Promise<void> {
+    const staleThreshold = new Date(Date.now() - 3 * 60 * 60 * 1000);
+
+    const staleMatches = await this.matchRepository.find({
+      where: {
+        status: In(['live', 'halftime', 'extra_time', 'penalties']),
+        updated_at: LessThan(staleThreshold),
+      },
+    });
+
+    if (staleMatches.length === 0) return;
+
+    const ids = staleMatches.map((m) => m.api_football_id);
+    this.logger.warn(
+      `Found ${staleMatches.length} stale live match(es): [${ids.join(', ')}]. Resolving via API-Football...`,
+    );
+
+    await this.resolveVanishedMatches(ids);
+    this.logger.log('Stale match resolution complete');
+  }
 
   private startPolling() {
     // Poll immediately, then schedule next
@@ -155,13 +188,13 @@ export class PollerService implements OnModuleInit, OnModuleDestroy {
 
     const currentLiveIds = new Set(fixtures.map((f) => f.fixture.id));
 
-    // Detect matches that were live but disappeared (likely finished)
-    const vanishedIds = [...this.previouslyLiveIds].filter((id) => !currentLiveIds.has(id));
+    const prevForLeague = this.previouslyLiveByLeague.get(leagueId) ?? new Set<number>();
+    const vanishedIds = [...prevForLeague].filter((id) => !currentLiveIds.has(id));
     if (vanishedIds.length > 0) {
       await this.resolveVanishedMatches(vanishedIds);
     }
 
-    this.previouslyLiveIds = currentLiveIds;
+    this.previouslyLiveByLeague.set(leagueId, currentLiveIds);
 
     if (fixtures.length === 0) return false;
 
