@@ -17,8 +17,11 @@ BASE_URL="${BASE_URL:-https://minute93.onrender.com}"
 case "$TEST_NAME" in
   preliminary) SCRIPT="k6/preliminary-test.js" ;;
   level1)      SCRIPT="k6/level1-test.js" ;;
+  level1-20m) SCRIPT="k6/level1-20m-200-test.js" ;;
   match-day)       SCRIPT="k6/match-day-test.js" ;;
   match-day-quick) SCRIPT="k6/match-day-quick-test.js" ;;
+  match-day-10m)   SCRIPT="k6/match-day-10m-test.js" ;;
+  match-day-proof) SCRIPT="k6/match-day-proof-test.js" ;;
   spike)           SCRIPT="k6/spike-test.js" ;;
   *)           echo "Unknown test: $TEST_NAME"; exit 1 ;;
 esac

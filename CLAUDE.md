@@ -89,7 +89,8 @@ Tests live in `k6/` and target production at `https://minute93.onrender.com`.
 |------|--------|----------|----------|------|
 | Preliminary | `k6/preliminary-test.js` | 30 min | 200 | Pre-launch validation |
 | Level 1 | `k6/level1-test.js` | 45 min | 200 (spikes) | April 4 |
-| Match Day | `k6/match-day-test.js` | 110 min | 3,000–5,000 (spikes) | April 8–9 |
+| Match Day Proof | `k6/match-day-proof-test.js` | 30 min | 150 sustained, 250 spikes | Architecture validation |
+| Match Day (full) | `k6/match-day-test.js` | 110 min | 3,000–5,000 (spikes) | Requires infra upgrade |
 
 ### Running a test
 
