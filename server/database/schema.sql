@@ -239,7 +239,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_mv_top_scorers_player_team_season ON mv_to
 INSERT INTO users (email, password_hash, name, auth_provider, is_admin)
 VALUES (
   'admin@minute93.com',
-  '$2b$10$EabGI.LcP7fXxJ9WBtF6y.LFYaFwt8MsA.lz3Yw8M4HY7y6tRJ8rG',
+  '$2b$10$uygaNsvZqpupt3JtqUDwW.1bj7VElsMV.u5EU0Fdj6IcDK2oqQdPu',
   'admin',
   'credentials',
   true
