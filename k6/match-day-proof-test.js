@@ -16,18 +16,18 @@ import powerUser from './scenarios/power-user.js';
 // Usage:
 //   ADMIN_PASSWORD='<pw>' ./k6/run-test.sh match-day-proof
 //
-// Timeline (30 min):
-//   0-3m   : Pre-match ramp to 150 VUs
-//   3-5m   : KICKOFF SPIKE (150 → 250)
-//   5-12m  : First half steady (150)
-//   12-13m : GOAL SPIKE (150 → 250)
-//   13-18m : First half continues (150)
-//   18-20m : Halftime dip (75)
-//   20-22m : Second half kickoff spike (75 → 200)
-//   22-25m : Second half steady (150)
-//   25-26m : GOAL SPIKE #2 (150 → 250)
-//   26-28m : Post-match cooldown (100)
-//   28-30m : Ramp down
+// Timeline (15 min):
+//   0-1.5m : Pre-match ramp to 150 VUs
+//   1.5-2.5m : KICKOFF SPIKE (150 → 250)
+//   2.5-5.5m : First half steady (150)
+//   5.5-6m : GOAL SPIKE (150 → 250)
+//   6-8m   : First half continues (150)
+//   8-9m   : Halftime dip (75)
+//   9-10m  : Second half kickoff spike (75 → 200)
+//   10-11.5m : Second half steady (150)
+//   11.5-12m : GOAL SPIKE #2 (150 → 250)
+//   12-13.5m : Post-match cooldown (100)
+//   13.5-15m : Ramp down
 
 const SUSTAINED = 150;
 const SPIKE = 250;
@@ -38,21 +38,21 @@ const COOLDOWN = 100;
 function stages(pct) {
   const s = (v) => Math.max(1, Math.round(v * pct));
   return [
-    { duration: '3m', target: s(SUSTAINED) },    // Pre-match ramp
-    { duration: '1m', target: s(SPIKE) },         // Kickoff spike
-    { duration: '1m', target: s(SPIKE) },         // Hold kickoff
-    { duration: '7m', target: s(SUSTAINED) },     // First half steady
-    { duration: '30s', target: s(SPIKE) },        // GOAL SPIKE #1
-    { duration: '30s', target: s(SPIKE) },        // Hold spike
-    { duration: '5m', target: s(SUSTAINED) },     // First half continues
-    { duration: '2m', target: s(DIP) },           // Halftime dip
-    { duration: '1m', target: s(KICKOFF) },       // Second half kickoff spike
-    { duration: '1m', target: s(KICKOFF) },       // Hold
-    { duration: '3m', target: s(SUSTAINED) },     // Second half steady
-    { duration: '30s', target: s(SPIKE) },        // GOAL SPIKE #2
-    { duration: '30s', target: s(SPIKE) },        // Hold spike
-    { duration: '2m', target: s(COOLDOWN) },      // Post-match cooldown
-    { duration: '2m', target: 0 },                // Ramp down
+    { duration: '90s', target: s(SUSTAINED) },    // Pre-match ramp
+    { duration: '30s', target: s(SPIKE) },         // Kickoff spike
+    { duration: '30s', target: s(SPIKE) },         // Hold kickoff
+    { duration: '3m', target: s(SUSTAINED) },      // First half steady
+    { duration: '15s', target: s(SPIKE) },         // GOAL SPIKE #1
+    { duration: '15s', target: s(SPIKE) },         // Hold spike
+    { duration: '2m', target: s(SUSTAINED) },      // First half continues
+    { duration: '1m', target: s(DIP) },            // Halftime dip
+    { duration: '30s', target: s(KICKOFF) },       // Second half kickoff spike
+    { duration: '30s', target: s(KICKOFF) },       // Hold
+    { duration: '90s', target: s(SUSTAINED) },     // Second half steady
+    { duration: '15s', target: s(SPIKE) },         // GOAL SPIKE #2
+    { duration: '15s', target: s(SPIKE) },         // Hold spike
+    { duration: '90s', target: s(COOLDOWN) },      // Post-match cooldown
+    { duration: '90s', target: 0 },                // Ramp down
   ];
 }
 
