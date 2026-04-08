@@ -83,7 +83,7 @@ export default function ArticlePage() {
       </section>
 
       {/* Table of Contents + Article Body */}
-      <div className="mx-auto flex max-w-5xl gap-12 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-5xl gap-12 px-4 py-12 sm:px-6 lg:px-8">
         {/* Sidebar TOC - desktop only */}
         <aside className="hidden w-56 flex-shrink-0 lg:block">
           <div className="sticky top-24">
@@ -106,7 +106,7 @@ export default function ArticlePage() {
         </aside>
 
         {/* Article Content */}
-        <article className="min-w-0 flex-1">
+        <article className="min-w-0 flex-1 overflow-hidden">
           {/* What Minute93 Does */}
           <section id="what-it-does" className="mb-16">
             <Badge variant="outline" className="mb-4 gap-1.5 text-xs">
@@ -121,11 +121,9 @@ export default function ArticlePage() {
               <p>
                 The frontend is a Next.js app. The backend is a NestJS API behind an Nginx reverse proxy, with Kafka handling event streaming, Redis managing caching and real-time delivery, and k6 for load testing. Data comes from API-Football, which provides real-time match data for leagues like the Champions League, La Liga, and the Premier League.
               </p>
-              <Card className="border-primary/20 bg-primary/5">
-                <CardContent className="p-4 text-sm italic">
-                  &ldquo;But the interesting part is not what the app does. It is how the data moves through the system.&rdquo;
-                </CardContent>
-              </Card>
+              <p>
+                But the interesting part is not what the app does. It is how the data moves through the system.
+              </p>
             </div>
           </section>
 
@@ -223,11 +221,9 @@ SSE Publisher Consumer <-- reads from -- Kafka (match.events)`}
                   </pre>
                 </CardContent>
               </Card>
-              <Card className="border-primary/20 bg-primary/5">
-                <CardContent className="p-4 text-sm italic">
-                  &ldquo;During a live match, the SSE path generates zero database queries. If you had 10,000 people watching the same match, the database would not feel it at all. The load stays on Redis, which is built for exactly this kind of workload.&rdquo;
-                </CardContent>
-              </Card>
+              <p>
+                During a live match, the SSE path generates zero database queries. If you had 10,000 people watching the same match, the database would not feel it at all. The load stays on Redis, which is built for exactly this kind of workload.
+              </p>
             </div>
           </section>
 
@@ -306,11 +302,9 @@ SSE Publisher Consumer <-- reads from -- Kafka (match.events)`}
               <p>
                 The backend API runs on 2 CPU cores with 4 GB of RAM. Postgres has 0.5 CPU and 1 GB of RAM. Redis has 1 GB of memory and 1,000 connections. Kafka is on a managed cloud tier that has been rock solid. The frontend is on a free hosting tier.
               </p>
-              <Card className="border-primary/20 bg-primary/5">
-                <CardContent className="p-4 text-sm italic">
-                  &ldquo;That is the whole stack. No Kubernetes, no multi-region deployment, no managed container orchestration. Just a handful of services, each sized for the job.&rdquo;
-                </CardContent>
-              </Card>
+              <p>
+                That is the whole stack. No Kubernetes, no multi-region deployment, no managed container orchestration. Just a handful of services, each sized for the job.
+              </p>
             </div>
           </section>
 
@@ -346,20 +340,18 @@ SSE Publisher Consumer <-- reads from -- Kafka (match.events)`}
 
               <h3 className="text-lg font-semibold text-foreground pt-4">The Diagnosis</h3>
               <p>
-                Here is the thing though. The failure was not architectural. Nothing about the design broke. The Kafka consumers kept doing their jobs. The Redis patterns still worked. The SSE path still functioned. What happened was purely a resource issue: the CPU was completely saturated, and requests piled up waiting for compute time that was not there.
+                Here is the thing though. <strong className="text-foreground">The failure was not architectural.</strong> Nothing about the design broke. The Kafka consumers kept doing their jobs. The Redis patterns still worked. The SSE path still functioned. What happened was purely a resource issue: the CPU was completely saturated, and requests piled up waiting for compute time that was not there.
               </p>
 
               <h3 className="text-lg font-semibold text-foreground pt-4">The Proof</h3>
               <p>
                 So I designed a final test at the ceiling of what the infrastructure could handle. 500 sustained virtual users with spikes to 800. Same match-day patterns. Same user behavior scenarios. Same chaos.
               </p>
-              <Card className="border-primary/20 bg-primary/5">
-                <CardContent className="p-4 text-sm italic">
-                  &ldquo;The result: 100% checks passed. Zero percent error rate. Zero failed requests. Every pattern held. Kafka fan-out, Redis cache-aside, Pub/Sub for SSE delivery, event deduplication. All of it working exactly as intended under sustained load.&rdquo;
-                </CardContent>
-              </Card>
               <p>
-                The only thing that ran hot was the CPU, and that is not a design problem. That is an infrastructure sizing knob.
+                <strong className="text-foreground">The result: 100% checks passed. Zero percent error rate. Zero failed requests.</strong> Every pattern held. Kafka fan-out, Redis cache-aside, Pub/Sub for SSE delivery, event deduplication. All of it working exactly as intended under sustained load.
+              </p>
+              <p>
+                <strong className="text-foreground">The only thing that ran hot was the CPU, and that is not a design problem. That is an infrastructure sizing knob.</strong>
               </p>
             </div>
           </section>
@@ -425,13 +417,11 @@ SSE Publisher Consumer <-- reads from -- Kafka (match.events)`}
                 Beyond the system architecture, this project is also a showcase of my frontend and backend development skills end to end, and of a real workflow around building with AI coding agents. I had defined engineering standards at my workplace to ensure code quality, maintainability, and reliability, regardless of whether code is written by a human or generated by AI. Using structured prompting techniques, maintaining context across sessions, knowing when to lean on AI tooling and when to think through problems yourself. That is a skill in itself, and it is one that compounds over time.
               </p>
               <p>
-                This was not just a portfolio project. It was practice for the real thing.
+                <strong className="text-foreground">This was not just a portfolio project. It was practice for the real thing.</strong>
               </p>
-              <Card className="border-primary/20 bg-primary/5">
-                <CardContent className="p-4 text-sm italic">
-                  &ldquo;The name Minute93 comes from Sergio Ramos&apos; header against Atletico Madrid in the 2014 Champions League final. 93rd minute, his team trailing, the trophy slipping away. He did not score that goal by accident. He scored it because he had put in the work before. That is the whole idea behind this project. Do the work now, so when the real 93rd minute comes, you do not have to think. You just know what to do.&rdquo;
-                </CardContent>
-              </Card>
+              <p>
+                The name Minute93 comes from Sergio Ramos&apos; header against Atletico Madrid in the 2014 Champions League final. 93rd minute, his team trailing, the trophy slipping away. He did not score that goal by accident. He scored it because he had put in the work before. <strong className="text-foreground">That is the whole idea behind this project. Do the work now, so when the real 93rd minute comes, you do not have to think. You just know what to do.</strong>
+              </p>
             </div>
           </section>
 
