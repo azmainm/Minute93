@@ -69,14 +69,13 @@ export default function HomePage() {
               Distributed Systems Portfolio Project
             </Badge>
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-              Every moment.{" "}
+              Real-time football,{" "}
               <span className="bg-gradient-to-r from-primary to-rose-400 bg-clip-text text-transparent">
-                Every goal.
-              </span>{" "}
-              In real time.
+                built to scale.
+              </span>
             </h1>
             <p className="mt-6 text-lg text-muted-foreground sm:text-xl">
-              Live scores, historical stats, league standings, and instant search. A real-time football intelligence platform built for the beautiful game.
+              Live scores, standings, stats, and instant search. A system architecture portfolio project designed and load tested for real-world scale.
             </p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link href="/matches">
