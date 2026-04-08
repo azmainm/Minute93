@@ -47,6 +47,7 @@ const EVENT_TYPE_MAP: Record<string, string> = {
 
 const DEDUP_KEY = 'processed:events';
 const DEDUP_TTL = 86400; // 24 hours
+const STALE_MATCH_THRESHOLD_MS = 2.5 * 60 * 60 * 1000; // 2.5 hours from kickoff
 
 @Injectable()
 export class PollerService implements OnModuleInit, OnModuleDestroy {
@@ -96,17 +97,18 @@ export class PollerService implements OnModuleInit, OnModuleDestroy {
   private hasLiveMatches = false;
 
   /**
-   * On startup, find matches stuck in live/halftime status whose updated_at
-   * is older than 3 hours. Fetch their real status from API-Football and
-   * push corrections through Kafka so the DB and cache get updated.
+   * Find matches stuck in live/halftime status whose kickoff_at is older
+   * than 2.5 hours ago. Try to resolve via API-Football first; if that
+   * fails or returns no data, force-finish them directly in Postgres.
+   * Runs on startup and every poll cycle.
    */
   private async resolveStaleMatches(): Promise<void> {
-    const staleThreshold = new Date(Date.now() - 3 * 60 * 60 * 1000);
+    const staleThreshold = new Date(Date.now() - STALE_MATCH_THRESHOLD_MS);
 
     const staleMatches = await this.matchRepository.find({
       where: {
         status: In(['live', 'halftime', 'extra_time', 'penalties']),
-        updated_at: LessThan(staleThreshold),
+        kickoff_at: LessThan(staleThreshold),
       },
     });
 
@@ -114,11 +116,33 @@ export class PollerService implements OnModuleInit, OnModuleDestroy {
 
     const ids = staleMatches.map((m) => m.api_football_id);
     this.logger.warn(
-      `Found ${staleMatches.length} stale live match(es): [${ids.join(', ')}]. Resolving via API-Football...`,
+      `Found ${staleMatches.length} stale live match(es): [${ids.join(', ')}]. Resolving...`,
     );
 
-    await this.resolveVanishedMatches(ids);
-    this.logger.log('Stale match resolution complete');
+    try {
+      await this.resolveVanishedMatches(ids);
+    } catch {
+      this.logger.warn('API-Football resolution failed, force-finishing stale matches');
+    }
+
+    // Force-finish any that are still stuck after the API attempt
+    const stillStuck = await this.matchRepository.find({
+      where: {
+        status: In(['live', 'halftime', 'extra_time', 'penalties']),
+        kickoff_at: LessThan(staleThreshold),
+      },
+    });
+
+    for (const match of stillStuck) {
+      await this.matchRepository.update(match.id, {
+        status: 'finished',
+        minute: 90,
+        updated_at: new Date(),
+      });
+      this.logger.warn(
+        `Force-finished stale match ${match.id} (api_id: ${match.api_football_id}, kickoff: ${match.kickoff_at.toISOString()})`,
+      );
+    }
   }
 
   private startPolling() {
@@ -150,6 +174,7 @@ export class PollerService implements OnModuleInit, OnModuleDestroy {
 
     let foundLiveMatches = false;
     try {
+      await this.resolveStaleMatches();
       for (const leagueId of this.activeLeagues) {
         const hasLive = await this.pollLeague(leagueId);
         if (hasLive) foundLiveMatches = true;
