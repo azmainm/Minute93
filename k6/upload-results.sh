@@ -20,11 +20,13 @@ if [ ! -f "$SUMMARY_FILE" ]; then
 fi
 
 # Use Python for the entire upload to avoid shell escaping issues with passwords
-python3 - "$TEST_NAME" "$SUMMARY_FILE" "$BASE_URL" "$ADMIN_EMAIL" "$ADMIN_PASSWORD" <<'PYEOF'
+export UPLOAD_PASSWORD="$ADMIN_PASSWORD"
+python3 - "$TEST_NAME" "$SUMMARY_FILE" "$BASE_URL" "$ADMIN_EMAIL" <<'PYEOF'
 import json, sys, urllib.request, os
 from datetime import datetime, timezone
 
-test_name, summary_file, base_url, email, password = sys.argv[1:6]
+test_name, summary_file, base_url, email = sys.argv[1:5]
+password = os.environ["UPLOAD_PASSWORD"]
 
 def api_post(path, data, token=None):
     payload = json.dumps(data).encode()
